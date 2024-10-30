@@ -1,0 +1,40 @@
+export const ROUTE_PATH = {
+  ROOT: {
+    INDEX: '/',
+    ABOUT: 'about',
+    TEST: 'test-chuan-doan',
+    LOGIN: 'login',
+    REGISTER: 'register',
+    FORGOT_PASSWORD: 'forgot-password',
+    RESET_PASSWORD: 'reset-password',
+    FIND_DOCTOR: 'find-doctor',
+    DOCTOR_DETAIL: 'doctor-detail',
+    DOCTOR_SCHEDULE: 'doctor-schedule',
+    TREATMENT_HISTORY: 'treatment-history',
+    RATE_DOCTOR: 'rate-doctor',
+  },
+  MESSAGE: {
+    INDEX: '/message',
+    ROOM: '/message/room',
+  },
+  DOCTOR: {
+    INDEX: '/doctor',
+    DASHBOARD: '/doctor/dashboard',
+    SCHEDULE: '/doctor/schedule',
+    NOTIFICATION: '/doctor/notification',
+    TREATMENT: '/doctor/treatment',
+    PROFILE: '/doctor/profile',
+    POST: '/doctor/post',
+  },
+  ADMIN: {
+    INDEX: '/admin',
+    DASHBOARD: '/admin/dashboard',
+    REGISTER_MANAGEMENT: '/admin/doctor-register',
+    ACCOUNT_MANAGEMENT: '/admin/account-management',
+    POST_MANAGEMENT: '/admin/post-manager',
+  },
+  NOTFOUND: {
+    INDEX: '*',
+  },
+  FORBIDDEN: '/403',
+}
