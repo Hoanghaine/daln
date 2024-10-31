@@ -40,6 +40,27 @@ export const routes = [
         ),
       },
       {
+        label: 'Forum',
+        path: ROUTE_PATH.ROOT.FORUM,
+        component: React.lazy(
+          () => import('../pages/MainPage/Forum/Forum.tsx'),
+        ),
+      },
+      {
+        label: 'New and Event',
+        path: ROUTE_PATH.ROOT.NEWS_EVENT,
+        component: React.lazy(
+          () => import('../pages/MainPage/NewsAndEvent/NewsAndEvent.tsx'),
+        ),
+      },
+      {
+        label: 'Contact',
+        path: ROUTE_PATH.ROOT.CONTACT,
+        component: React.lazy(
+          () => import('../pages/MainPage/Contact/Contact.tsx'),
+        ),
+      },
+      {
         label: 'Doctor Detail',
         path: ROUTE_PATH.ROOT.DOCTOR_DETAIL,
         component: React.lazy(
@@ -62,13 +83,13 @@ export const routes = [
     path: ROUTE_PATH.ROOT.LOGIN,
     component: React.lazy(() => import('../pages/MainPage/Login/Login.tsx')),
   },
-  {
-    label: 'Doctor',
-    path: ROUTE_PATH.DOCTOR.INDEX,
-    layout: BlankLayout,
-    component: React.lazy(() => import('../pages/MainPage/Login/Login.tsx')),
-    exact: true,
-  },
+  // {
+  //   label: 'Doctor',
+  //   path: ROUTE_PATH.DOCTOR.INDEX,
+  //   layout: BlankLayout,
+  //   component: React.lazy(() => import('../pages/MainPage/Login/Login.tsx')),
+  //   exact: true,
+  // },
   {
     label: 'Doctor Dashboard',
     path: ROUTE_PATH.DOCTOR.INDEX,

@@ -3,6 +3,7 @@ import Grid from '@mui/material/Grid2'
 import blackdoctor from '../../../assets/blackdoctor.png'
 import imgTriLieu from '../../../assets/tri-lieu-tam-ly-ca-nhan.png'
 import NewsSection from '../../../components/mainPage/NewsSection'
+import OurDoctorsSection from '../../../components/mainPage/OurDoctorsSection'
 function Home() {
   return (
     <Box sx={{}}>
@@ -24,38 +25,68 @@ function Home() {
         }}
       >
         <Grid size={12}>
-          <Box>
-            <Typography variant='h4' color='initial'>
-              Chào mừng đến với PsyConnect
-            </Typography>
-            <Typography variant='h2' color='initial'>
-              Nơi kết nối tâm lý học trị liệu
-            </Typography>
-            <Typography variant='body1' color='initial'>
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              alignItems: 'center',
+              gap: '16px',
+            }}
+          >
+            <Box textAlign={'center'}>
+              <Typography variant='h3' color='#3C5EAB'>
+                Chào mừng đến với PsyConnect
+              </Typography>
+              <Typography variant='h4' color='#65AD45'>
+                Nơi kết nối tâm lý học trị liệu
+              </Typography>
+            </Box>
+            <Typography
+              variant='body1'
+              color='initial'
+              width={'70%'}
+              textAlign={'center'}
+            >
               PsyConnect là nơi kết nối giữa người cần tìm kiếm sự hỗ trợ tâm lý
               và các chuyên gia tâm lý học trị liệu uy tín. Chúng tôi cung cấp
               dịch vụ tư vấn tâm lý trực tuyến, giúp bạn giải quyết những vấn đề
               tâm lý đang gặp phải một cách nhanh chóng và hiệu quả.
             </Typography>
-            <Typography variant='caption' color='initial'>
-              Tìm hiểu thêm
-            </Typography>
+            <Button variant='outlined'>Tìm hiểu thêm</Button>
           </Box>
         </Grid>
         <Grid size={12}>
           <Box
             component={'img'}
             src={blackdoctor}
-            sx={{ width: '100%', height: '500px', objectFit: 'cover', mb: 2 }}
+            sx={{ width: '100%', height: '250px', objectFit: 'cover', mb: 2 }}
           ></Box>
         </Grid>
-        <Grid size={12}>
-          <Typography variant='body1' color='initial'>
+      </Grid>
+      <Box
+        sx={{
+          width: '100%',
+          backgroundColor: '#f5f5f5f5',
+        }}
+      >
+        <Grid
+          container
+          sx={{
+            maxWidth: '1152px',
+            padding: '16px 0',
+            gap: '20px',
+            margin: '0px auto',
+            flexWrap: 'nowrap',
+            flexDirection: 'column',
+          }}
+        >
+          <Typography variant='h4' color='#000' textAlign={'center'} mb={2}>
             PsyConnect tập trung vào
           </Typography>
           <Stack
             direction='row'
-            spacing={2}
+            spacing={4}
             sx={{ justifyContent: 'space-between' }}
           >
             <Box
@@ -64,6 +95,7 @@ function Home() {
                 flexDirection: 'column',
                 justifyContent: 'center',
                 alignItems: 'center',
+                backgroundColor: '#fff',
               }}
             >
               <Box
@@ -71,151 +103,149 @@ function Home() {
                 src={imgTriLieu}
                 sx={{ width: '100%' }}
               ></Box>
-              <Box>
-                <Typography variant='h5' color='initial'>
-                  Tham vấn và Trị liệu tâm lý
-                </Typography>
-                <Typography variant='body2' color='initial'>
-                  Thực hiện tham vấn, tư vấn tâm lý trực tiếp, trực tuyến cho
-                  học sinh, cặp đôi, gia đình…
-                </Typography>
-                <Button variant='outlined'>Xem chi tiết</Button>
+              <Box
+                sx={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'flex-start',
+                  gap: '16px',
+                  padding: '16px',
+                }}
+              >
+                <Box>
+                  <Typography variant='h5' color='#000'>
+                    Tham vấn và Trị liệu tâm lý
+                  </Typography>
+                  <Typography variant='body2' color='#000'>
+                    Thực hiện tham vấn, tư vấn tâm lý trực tiếp, trực tuyến cho
+                    học sinh, cặp đôi, gia đình…
+                  </Typography>
+                </Box>
+                <Button variant='contained'>Xem chi tiết</Button>
               </Box>
             </Box>
-            <Box>
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                alignItems: 'center',
+                backgroundColor: '#fff',
+              }}
+            >
               <Box
                 component={'img'}
                 src={imgTriLieu}
                 sx={{ width: '100%' }}
               ></Box>
-              <Box>
-                <Typography variant='h5' color='initial'>
-                  Tham vấn và Trị liệu tâm lý
-                </Typography>
-                <Typography variant='body2' color='initial'>
-                  Thực hiện tham vấn, tư vấn tâm lý trực tiếp, trực tuyến cho
-                  học sinh, cặp đôi, gia đình…
-                </Typography>
-                <Button variant='outlined'>Xem chi tiết</Button>
+              <Box
+                sx={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'flex-start',
+                  gap: '16px',
+                  padding: '16px',
+                }}
+              >
+                <Box>
+                  <Typography variant='h5' color='#000'>
+                    Tham vấn và Trị liệu tâm lý
+                  </Typography>
+                  <Typography variant='body2' color='#000'>
+                    Thực hiện tham vấn, tư vấn tâm lý trực tiếp, trực tuyến cho
+                    học sinh, cặp đôi, gia đình…
+                  </Typography>
+                </Box>
+                <Button variant='contained'>Xem chi tiết</Button>
               </Box>
             </Box>
-            <Box>
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                alignItems: 'center',
+                backgroundColor: '#fff',
+              }}
+            >
               <Box
                 component={'img'}
                 src={imgTriLieu}
                 sx={{ width: '100%' }}
               ></Box>
-              <Box>
-                <Typography variant='h5' color='initial'>
-                  Tham vấn và Trị liệu tâm lý
-                </Typography>
-                <Typography variant='body2' color='initial'>
-                  Thực hiện tham vấn, tư vấn tâm lý trực tiếp, trực tuyến cho
-                  học sinh, cặp đôi, gia đình…
-                </Typography>
-                <Button variant='outlined'>Xem chi tiết</Button>
+              <Box
+                sx={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'flex-start',
+                  gap: '16px',
+                  padding: '16px',
+                }}
+              >
+                <Box>
+                  <Typography variant='h5' color='#000'>
+                    Tham vấn và Trị liệu tâm lý
+                  </Typography>
+                  <Typography variant='body2' color='#000'>
+                    Thực hiện tham vấn, tư vấn tâm lý trực tiếp, trực tuyến cho
+                    học sinh, cặp đôi, gia đình…
+                  </Typography>
+                </Box>
+                <Button variant='contained'>Xem chi tiết</Button>
               </Box>
             </Box>
           </Stack>
         </Grid>
-        <Grid size={12}>
-          <Typography variant='h4' color='initial' textAlign={'center'}>
-            Đội ngũ chuyên gia của BrainCare
-          </Typography>
-          <Box>
-            <Stack>
-              <Box
-                sx={{
-                  display: 'flex',
-                  flexDirection: 'row',
-                  justifyContent: 'space-between',
-                  gap: '20px',
-                  mb: 2,
-                }}
-              >
-                <Box
-                  component={'img'}
-                  src='https://braincare.vn/wp-content/uploads/bac-si-dung.jpg'
-                  sx={{ width: '50%', objectFit: 'cover', flexShrink: 0 }}
-                ></Box>
-                <Box
-                  sx={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '10px',
-                  }}
-                >
-                  <Typography variant='h5' color='initial'>
-                    TS. Lê Thị Hồng
-                  </Typography>
-                  <Typography variant='body1' color='initial'>
-                    Chuyên gia tâm lý học
-                  </Typography>
-                  <Typography variant='body2' color='initial'>
-                    Hơn 30 năm kinh nghiệm trong lĩnh vực điều trị các rối loạn
-                    tâm thần, các rối loạn phát triển ở trẻ em, cai nghiện game,
-                    Internet, rượu tại Viện sức khỏe tâm thần-Bệnh viện Bạch Mai
-                  </Typography>
-                </Box>
-              </Box>
-              <Stack
-                direction='row'
-                spacing={2}
-                sx={{ justifyContent: 'space-between' }}
-              >
-                <Box
-                  component={'img'}
-                  src='https://braincare.vn/wp-content/uploads/bac-si-dung.jpg'
-                  sx={{ width: '200px', objectFit: 'cover', flexShrink: 0 }}
-                ></Box>
-                <Box
-                  component={'img'}
-                  src='https://braincare.vn/wp-content/uploads/bac-si-dung.jpg'
-                  sx={{ width: '200px', objectFit: 'cover', flexShrink: 0 }}
-                ></Box>
-                <Box
-                  component={'img'}
-                  src='https://braincare.vn/wp-content/uploads/bac-si-dung.jpg'
-                  sx={{ width: '200px', objectFit: 'cover', flexShrink: 0 }}
-                ></Box>
-                <Box
-                  component={'img'}
-                  src='https://braincare.vn/wp-content/uploads/bac-si-dung.jpg'
-                  sx={{ width: '200px', objectFit: 'cover', flexShrink: 0 }}
-                ></Box>
-                <Box
-                  component={'img'}
-                  src='https://braincare.vn/wp-content/uploads/bac-si-dung.jpg'
-                  sx={{ width: '200px', objectFit: 'cover', flexShrink: 0 }}
-                ></Box>
-              </Stack>
-            </Stack>
-          </Box>
-        </Grid>
-        <Grid size={12}>
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center',
-              alignItems: 'flex-start',
-              padding: '20px',
-              height: '360px',
-              backgroundImage: `url('https://braincare.vn/wp-content/uploads/2021/04/braincare-xd_02.png')`,
-              backgroundPosition: 'center center',
-              backgroundSize: 'cover',
-            }}
-          >
-            <Typography variant='h5' color='initial' mb={2}>
-              Kiểm tra sức khỏe tinh thần miễn phí
-            </Typography>
-            <Button variant='contained'>Làm bài kiểm tra ngay</Button>
-          </Box>
-        </Grid>
-        <Grid size={12}>
-          <NewsSection />
-        </Grid>
+      </Box>
+      <OurDoctorsSection />
+      <Grid
+        container
+        sx={{
+          maxWidth: '1152px',
+          padding: '16px 0',
+          gap: '20px',
+          backgroundColor: '#fff',
+          margin: '0px auto',
+          flexWrap: 'nowrap',
+          flexDirection: 'column',
+        }}
+      >
+        <NewsSection />
       </Grid>
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'flex-start',
+          padding: '20px',
+          height: '360px',
+          backgroundImage: `url('https://braincare.vn/wp-content/uploads/2021/04/braincare-xd_02.png')`,
+          backgroundPosition: 'center center',
+          backgroundSize: 'cover',
+          mb: 2,
+        }}
+      >
+        <Grid
+          container
+          sx={{
+            maxWidth: '1152px',
+            width: '100%',
+            padding: '16px 0',
+            gap: '20px',
+            backgroundColor: 'transparent',
+            margin: '0px auto',
+            flexWrap: 'nowrap',
+            flexDirection: 'column',
+            alignItems: 'flex-start',
+          }}
+        >
+          <Typography variant='h5' color='initial' mb={2}>
+            Kiểm tra sức khỏe tinh thần miễn phí
+          </Typography>
+          <Button variant='contained'>Làm bài kiểm tra ngay</Button>
+        </Grid>
+      </Box>
     </Box>
   )
 }
