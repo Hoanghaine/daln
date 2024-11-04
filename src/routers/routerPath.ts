@@ -1,5 +1,5 @@
 import { ROUTE_PATH } from '../constants/routePath.constant'
-import React from 'react'
+import React, { Children } from 'react'
 import ProtectedLayout from '../components/layouts/ProtectedLayout/ProtectedLayout'
 import BlankLayout from '../components/layouts/BlankLayout/BlankLayout'
 
@@ -14,6 +14,8 @@ export const routes = [
       {
         label: 'About US',
         path: ROUTE_PATH.ROOT.ABOUT,
+        exact: true,
+
         component: React.lazy(
           () => import('../pages/MainPage/AboutUs/AboutUs.tsx'),
         ),
@@ -21,13 +23,29 @@ export const routes = [
       {
         label: 'Disease Test',
         path: ROUTE_PATH.ROOT.TEST,
+        exact: true,
+
         component: React.lazy(
           () => import('../pages/MainPage/DiseaseTest/DiseaseTest.tsx'),
         ),
       },
       {
+        label: 'Disease Test',
+        path: ROUTE_PATH.ROOT.DEPRESION_TEST,
+        exact: true,
+
+        component: React.lazy(
+          () =>
+            import(
+              '../pages/MainPage/DiseaseTest/DepresionTest/DepressionTest.tsx'
+            ),
+        ),
+      },
+      {
         label: 'Register',
         path: ROUTE_PATH.ROOT.REGISTER,
+        exact: true,
+
         component: React.lazy(
           () => import('../pages/MainPage/Register/Register.tsx'),
         ),
@@ -35,20 +53,45 @@ export const routes = [
       {
         label: 'Find Doctor',
         path: ROUTE_PATH.ROOT.FIND_DOCTOR,
+        exact: true,
+
         component: React.lazy(
           () => import('../pages/MainPage/FindDoctor/FindDoctor.tsx'),
         ),
       },
       {
+        label: 'Detail Doctor',
+        path: ROUTE_PATH.ROOT.DOCTOR_DETAIL,
+        exact: true,
+
+        component: React.lazy(
+          () => import('../pages/MainPage/FindDoctor/DoctorDetail.tsx'),
+        ),
+      },
+
+      {
         label: 'Forum',
         path: ROUTE_PATH.ROOT.FORUM,
+        exact: true,
+
         component: React.lazy(
           () => import('../pages/MainPage/Forum/Forum.tsx'),
         ),
       },
       {
+        label: 'Deatil Post',
+        path: ROUTE_PATH.ROOT.DETAIL_POST,
+        exact: true,
+
+        component: React.lazy(
+          () => import('../pages/MainPage/Forum/DetailPost.tsx'),
+        ),
+      },
+      {
         label: 'New and Event',
         path: ROUTE_PATH.ROOT.NEWS_EVENT,
+        exact: true,
+
         component: React.lazy(
           () => import('../pages/MainPage/NewsAndEvent/NewsAndEvent.tsx'),
         ),
@@ -56,6 +99,8 @@ export const routes = [
       {
         label: 'Contact',
         path: ROUTE_PATH.ROOT.CONTACT,
+        exact: true,
+
         component: React.lazy(
           () => import('../pages/MainPage/Contact/Contact.tsx'),
         ),
@@ -63,6 +108,8 @@ export const routes = [
       {
         label: 'Doctor Detail',
         path: ROUTE_PATH.ROOT.DOCTOR_DETAIL,
+        exact: true,
+
         component: React.lazy(
           () => import('../pages/MainPage/DoctorDetail/DoctorDetail.tsx'),
         ),
@@ -70,6 +117,8 @@ export const routes = [
       {
         label: 'Treatment History',
         path: ROUTE_PATH.ROOT.TREATMENT_HISTORY,
+        exact: true,
+
         component: React.lazy(
           () =>
             import('../pages/MainPage/TreatmentHistory/TreatmentHistory.tsx'),
@@ -109,18 +158,19 @@ export const routes = [
           () => import('../pages/Doctor/Schedule/Schedule'),
         ),
       },
-      {
-        label: 'Notification management',
-        path: ROUTE_PATH.DOCTOR.NOTIFICATION,
-        component: React.lazy(
-          () => import('../pages/Doctor/Notification/Notification.tsx'),
-        ),
-      },
+
       {
         label: 'Treatment management',
         path: ROUTE_PATH.DOCTOR.TREATMENT,
         component: React.lazy(
           () => import('../pages/Doctor/Treatment/Treatment.tsx'),
+        ),
+      },
+      {
+        label: 'Treatment detail',
+        path: ROUTE_PATH.DOCTOR.TREATMENT_DETAIL,
+        component: React.lazy(
+          () => import('../pages/Doctor/Treatment/TreatmentDetail.tsx'),
         ),
       },
       {
@@ -160,12 +210,9 @@ export const routes = [
       },
       {
         label: 'Register management',
-        path: ROUTE_PATH.ADMIN.REGISTER_MANAGEMENT,
+        path: ROUTE_PATH.ADMIN.NOTIFICATION,
         component: React.lazy(
-          () =>
-            import(
-              '../pages/Admin/DoctorRegisterManagement/RegisterManagement'
-            ),
+          () => import('../pages/Admin/Notification/Notification.tsx'),
         ),
       },
       {
@@ -173,13 +220,6 @@ export const routes = [
         path: ROUTE_PATH.ADMIN.ACCOUNT_MANAGEMENT,
         component: React.lazy(
           () => import('../pages/Admin/AccountManagement/AccountManagement'),
-        ),
-      },
-      {
-        label: 'Post management',
-        path: ROUTE_PATH.ADMIN.POST_MANAGEMENT,
-        component: React.lazy(
-          () => import('../pages/Admin/PostManagement/PostManagement'),
         ),
       },
     ],

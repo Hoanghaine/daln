@@ -1,16 +1,18 @@
 export interface IPost {
-  id: number;
-  fullname: string;
-  username: string;
-  email: string;
-  password: string;
-  phoneNumber: number;
-  address: string;
-  imageUrl: string;
+  id: number
+  title: string
+  content: string
+  author: string
+  createAt: string
+  thumbnail: string
+  tag: string
+  totalComment: number
+  totalLikes: number
+  avatar: string
 }
 
 export interface IPostResponse {
-  status: string;
-  message: string;
-  data: IPost;
+  status: string
+  message: string
+  data: IPost
 }

@@ -98,7 +98,7 @@ function OurDoctorsSection() {
           </Stack>
         </Box>
       </Grid>
-    </Box>
+    </Box>  
   )
 }
 

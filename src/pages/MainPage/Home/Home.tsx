@@ -1,17 +1,18 @@
 import { Box, Stack, Typography, Button } from '@mui/material'
 import Grid from '@mui/material/Grid2'
+import { Link } from 'react-router-dom'
 import blackdoctor from '../../../assets/blackdoctor.png'
 import imgTriLieu from '../../../assets/tri-lieu-tam-ly-ca-nhan.png'
 import NewsSection from '../../../components/mainPage/NewsSection'
 import OurDoctorsSection from '../../../components/mainPage/OurDoctorsSection'
+import ContactSection from '../../../components/mainPage/ContactSection'
+import Banner from '../../../components/mainPage/Banner'
+import React from 'react'
 function Home() {
+  const pageRef = React.useRef<HTMLDivElement | null>(null)
   return (
     <Box sx={{}}>
-      <Box
-        component={'img'}
-        src='https://images.unsplash.com/photo-1727946265721-c224a52ec71c?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxmZWF0dXJlZC1waG90b3MtZmVlZHwxNHx8fGVufDB8fHx8fA%3D%3D'
-        sx={{ width: '100%', height: '500px', objectFit: 'cover', mb: 2 }}
-      ></Box>
+      <Banner />
       <Grid
         container
         sx={{
@@ -35,7 +36,7 @@ function Home() {
             }}
           >
             <Box textAlign={'center'}>
-              <Typography variant='h3' color='#3C5EAB'>
+              <Typography variant='h5' color='#3C5EAB'>
                 Chào mừng đến với PsyConnect
               </Typography>
               <Typography variant='h4' color='#65AD45'>
@@ -53,7 +54,16 @@ function Home() {
               dịch vụ tư vấn tâm lý trực tuyến, giúp bạn giải quyết những vấn đề
               tâm lý đang gặp phải một cách nhanh chóng và hiệu quả.
             </Typography>
-            <Button variant='outlined'>Tìm hiểu thêm</Button>
+            <Button
+              variant='outlined'
+              onClick={() => {
+                pageRef.current?.scrollIntoView({
+                  behavior: 'smooth',
+                })
+              }}
+            >
+              Tìm hiểu thêm
+            </Button>
           </Box>
         </Grid>
         <Grid size={12}>
@@ -198,20 +208,8 @@ function Home() {
         </Grid>
       </Box>
       <OurDoctorsSection />
-      <Grid
-        container
-        sx={{
-          maxWidth: '1152px',
-          padding: '16px 0',
-          gap: '20px',
-          backgroundColor: '#fff',
-          margin: '0px auto',
-          flexWrap: 'nowrap',
-          flexDirection: 'column',
-        }}
-      >
-        <NewsSection />
-      </Grid>
+
+      <NewsSection />
       <Box
         sx={{
           display: 'flex',
@@ -225,6 +223,7 @@ function Home() {
           backgroundSize: 'cover',
           mb: 2,
         }}
+        ref={pageRef}
       >
         <Grid
           container
@@ -243,9 +242,21 @@ function Home() {
           <Typography variant='h5' color='initial' mb={2}>
             Kiểm tra sức khỏe tinh thần miễn phí
           </Typography>
-          <Button variant='contained'>Làm bài kiểm tra ngay</Button>
+          <Link
+            to='/test-chuan-doan'
+            style={{
+              padding: '16px 32px',
+              backgroundColor: '#3C5EAB',
+              color: '#fff',
+              textDecoration: 'none',
+              borderRadius: '8px',
+            }}
+          >
+            Làm bài kiểm tra ngay
+          </Link>
         </Grid>
       </Box>
+      <ContactSection />
     </Box>
   )
 }

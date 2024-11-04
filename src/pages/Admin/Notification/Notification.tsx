@@ -1,7 +1,7 @@
 function Notification() {
   return (
     <div>
-      notification
+      Register Management
     </div>
   )
 }

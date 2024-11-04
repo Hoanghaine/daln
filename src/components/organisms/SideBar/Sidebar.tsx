@@ -1,209 +1,149 @@
-import React, { useState, useEffect } from "react";
-import { NavLink, useLocation } from "react-router-dom";
-import { styled, Theme, CSSObject } from "@mui/material/styles";
-import Box from "@mui/material/Box";
-import MuiDrawer from "@mui/material/Drawer";
-import List from "@mui/material/List";
-import Divider from "@mui/material/Divider";
-import IconButton from "@mui/material/IconButton";
-import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
-import ChevronRightIcon from "@mui/icons-material/ChevronRight";
-import ListItem from "@mui/material/ListItem";
-import ListItemIcon from "@mui/material/ListItemIcon";
-import ListItemText from "@mui/material/ListItemText";
-import useMediaQuery from "@mui/material/useMediaQuery";
-import TableBarIcon from "@mui/icons-material/TableBar";
-import DashboardIcon from "@mui/icons-material/Dashboard";
-import PeopleIcon from "@mui/icons-material/People";
-import MenuBookIcon from "@mui/icons-material/MenuBook";
-import logoRes from "../../../assets/logoRes.png";
-import CopyrightMini from "../../layouts/Copyright/MiniCopyright";
-import { useStyles } from "./Sidebar.styles";
-
-const drawerWidth = 267;
-const openedMixin = (theme: Theme): CSSObject => ({
-  width: drawerWidth,
-  transition: theme.transitions.create("width", {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.enteringScreen,
-  }),
-  overflowX: "hidden",
-});
-
-const closedMixin = (theme: Theme): CSSObject => ({
-  transition: theme.transitions.create("width", {
-    easing: theme.transitions.easing.sharp,
-    duration: theme.transitions.duration.leavingScreen,
-  }),
-  overflowX: "hidden",
-  width: `calc(${theme.spacing(7)} + 1px)`,
-  [theme.breakpoints.up("sm")]: {
-    width: `calc(${theme.spacing(8)} + 1px)`,
-  },
-});
-
-const DrawerHeader = styled("div")(({ theme }) => ({
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "flex-end",
-  padding: theme.spacing(0, 1),
-  ...theme.mixins.toolbar,
-}));
-
-const Drawer = styled(MuiDrawer, {
-  shouldForwardProp: (prop) => prop !== "open",
-})(({ theme, open }) => ({
-  width: drawerWidth,
-  flexShrink: 0,
-  whiteSpace: "nowrap",
-  boxSizing: "border-box",
-  ...(open && {
-    ...openedMixin(theme),
-    "& .MuiDrawer-paper": openedMixin(theme),
-  }),
-  ...(!open && {
-    ...closedMixin(theme),
-    "& .MuiDrawer-paper": closedMixin(theme),
-  }),
-}));
-
-const activeClassName = "nav-item-active";
+import { NavLink } from 'react-router-dom'
+import { styled } from '@mui/material/styles'
+import React, { useState } from 'react'
+import Box from '@mui/material/Box'
+import DashboardIcon from '@mui/icons-material/Dashboard'
+import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone'
+import MeetingRoomIcon from '@mui/icons-material/MeetingRoom'
+import logo from '../../../assets/logo.png'
+import DynamicFeedIcon from '@mui/icons-material/DynamicFeed'
+import MenuIcon from '@mui/icons-material/Menu'
+import IconButton from '@mui/material/IconButton'
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday'
+import { useLocation } from 'react-router-dom'
 
 const StyledNavLink = styled(NavLink)(() => ({
-  textDecoration: "none",
-  color: "inherit",
-  borderRadius: "16px",
-  "&.active": {
-    "& .first-icon": {
-      display: "block",
+  textDecoration: 'none',
+  color: 'inherit',
+  borderRadius: '16px',
+  width: '224px',
+  '&.active': {
+    '& .first-icon': {
+      display: 'block',
     },
-    "& .second-icon": {
-      display: "none",
+    '& .second-icon': {
+      display: 'none',
     },
   },
-  "& .first-icon": {
-    display: "none",
+  '& .first-icon': {
+    display: 'none',
   },
-  "& .second-icon": {
-    display: "block",
+  '& .second-icon': {
+    display: 'block',
   },
-}));
+}))
 
 const SideBar: React.FC = () => {
-  const classes = useStyles();
-  const location = useLocation();
-  const is425px = useMediaQuery("(max-width:425px)");
-  const [open, setOpen] = useState(() => (!is425px ? true : false));
-  const [selectedItem, setSelectedItem] = useState<string>("");
+  const location = useLocation()
 
-  const menuItems = [
-    { id: "dashboard", label: "Tổng quan", Icon: DashboardIcon },
-    { id: "employee", label: "Nhân viên", Icon: PeopleIcon },
-    { id: "menu", label: "Thực đơn", Icon: MenuBookIcon },
-    { id: "table", label: "Bàn", Icon: TableBarIcon },
-  ];
+  const [isCollapsed, setIsCollapsed] = useState(false)
 
-  useEffect(() => {
-    setOpen(!is425px);
-  }, [is425px]);
-
-  useEffect(() => {
-    const path = location.pathname.split("/")[2];
-    setSelectedItem(path || "dashboard");
-  }, [location]);
-
-  const handleDrawer = () => {
-    setOpen(!open);
-  };
-  const handleSelectItem = (item: string) => {
-    setSelectedItem(item);
-  };
-
+  // Hàm để thay đổi trạng thái
+  const toggleSidebar = () => {
+    setIsCollapsed(!isCollapsed)
+  }
+  const menuItemsDoctor = [
+    { id: 'dashboard', label: 'Tổng quan', Icon: DashboardIcon },
+    { id: 'schedule', label: 'Lịch làm việc', Icon: CalendarTodayIcon },
+    { id: 'treatment', label: 'Phòng Khám', Icon: MeetingRoomIcon },
+    { id: 'post', label: 'Quản lý bài viết', Icon: DynamicFeedIcon },
+  ]
+  const menuItemsAdmin = [
+    { id: 'dashboard', label: 'Tổng quan', Icon: DashboardIcon },
+    {
+      id: 'account-management',
+      label: 'Quản lý tài khoản',
+      Icon: CalendarTodayIcon,
+    },
+    { id: 'notification', label: 'Thông báo', Icon: NotificationsNoneIcon },
+  ]
+  const menuItems = location.pathname.includes('/admin')
+    ? menuItemsAdmin
+    : menuItemsDoctor
+  const role = location.pathname.includes('/admin') ? 'admin' : 'doctor'
   return (
-    <Box>
-      <Drawer
-        variant="permanent"
-        open={open}
+    <Box
+      sx={{
+        width: isCollapsed ? '70px' : '240px', // Chiều rộng sidebar khi thu gọn/mở rộng
+        height: '100vh', // Sidebar chiếm toàn bộ chiều cao
+        border: '1px solid #f5f5f5',
+        padding: '16px',
+        transition: 'width 0.3s ease', // Hiệu ứng mượt mà khi chuyển đổi
+        overflow: 'hidden', // Giúp ẩn nội dung khi thu gọn
+      }}
+    >
+      <IconButton
+        onClick={toggleSidebar}
         sx={{
-          "&.MuiDrawer-root": {
-            position: "relative",
-            "& > .MuiPaper-root": {
-              overflow: "visible",
-              boxShadow:
-                "rgba(50, 50, 93, 0.25) 0px 13px 27px -5px, rgba(0, 0, 0, 0.3) 0px 8px 16px -8px",
-              border: "none",
-              padding: open ? "24px 24px 0px 24px" : 0,
-              width: open ? "200px" : "65px",
-              "& > div:first-of-type": {
-                display: "flex",
-                justifyContent: "center !important",
-                alignItems: "center",
-                width: "100%",
-                marginBottom: open ? "2.2rem" : 0,
-                "& .MuiBox-root": {
-                  width: "66%",
-                  "& img": {
-                    width: "100%",
-                  },
-                },
-              },
-            },
-          },
+          position: 'absolute',
+          top: '8px',
+          left: isCollapsed ? '80px' : '252px', // Di chuyển nút theo trạng thái
+          transform: isCollapsed ? 'rotate(180deg)' : 'rotate(0deg)', // Xoay icon khi sidebar đóng/mở
+          transition: 'left 0.3s ease, transform 0.3s ease',
+          zIndex: 1000, // Đảm bảo nút hiển thị trên các phần tử khác
         }}
       >
-        <DrawerHeader>
-          <Box onClick={handleDrawer}>
-            <img
-              src={logoRes}
-              alt="logo"
-              style={{ width: open ? "120px" : "30px" }}
-            />
-          </Box>
-        </DrawerHeader>
-        <Divider />
-        <List>
-          <Box sx={{ marginTop: "10px" }}>
-            {menuItems.map((item) => (
-              <ListItem
-                button
-                component={StyledNavLink}
-                activeClassName={activeClassName}
-                to={`/admin/${item.id}`}
-                onClick={() => handleSelectItem(item.id)}
-                sx={{
-                  borderRadius: "0.8rem",
-                  backgroundColor:
-                    selectedItem === item.id ? "#4E8D7C" : "transparent",
-                  color: selectedItem === item.id ? "#fff" : "black",
-                  "&:hover": {
-                    backgroundColor:
-                      selectedItem === item.id ? "#4E8D7C" : "e0e0e0",
-                  },
-                  mb: 1,
-                }}
-              >
-                <ListItemIcon>
-                  <item.Icon fontSize="small" />{" "}
-                </ListItemIcon>
-                <ListItemText
-                  primary={item.label}
-                  sx={{ opacity: open ? 1 : 0 }}
-                />
-              </ListItem>
-            ))}
-          </Box>
-        </List>
-        <Box className={classes.sidebarFooter}>
-          <CopyrightMini />
-        </Box>
-        <DrawerHeader>
-          <IconButton className={classes.iconButtonRoot} onClick={handleDrawer}>
-            {open ? <ChevronLeftIcon /> : <ChevronRightIcon />}
-          </IconButton>
-        </DrawerHeader>
-      </Drawer>
-    </Box>
-  );
-};
+        <MenuIcon />
+      </IconButton>
 
-export default SideBar;
+      {/* Logo, thay đổi hiển thị dựa trên trạng thái thu gọn */}
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
+      >
+        <Box
+          component={'img'}
+          src={logo}
+          alt='logo'
+          sx={{
+            mt: '20px',
+            width: isCollapsed ? '40px' : '100px',
+            marginBottom: '16px',
+          }}
+        />
+      </Box>
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '8px',
+          alignItems: isCollapsed ? 'center' : 'flex-start',
+        }}
+      >
+        {menuItems.map(({ id, label, Icon }) => (
+          <StyledNavLink
+            key={id}
+            to={`/${role}/${id}`}
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: isCollapsed ? 'center' : 'space-between',
+              padding: '8px 16px',
+              borderRadius: '16px',
+              '&:hover': {
+                backgroundColor: '#f5f5f5',
+              },
+            }}
+          >
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+              }}
+            >
+              <Icon />
+              {!isCollapsed && <Box sx={{ ml: '8px' }}>{label}</Box>}
+            </Box>
+          </StyledNavLink>
+        ))}
+      </Box>
+    </Box>
+  )
+}
+
+export default SideBar
