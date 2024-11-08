@@ -55,7 +55,7 @@ const SideBar: React.FC = () => {
       label: 'Quản lý tài khoản',
       Icon: CalendarTodayIcon,
     },
-    { id: 'notification', label: 'Thông báo', Icon: NotificationsNoneIcon },
+    { id: 'post-management', label: 'Quản lý bài đăng', Icon: DynamicFeedIcon },
   ]
   const menuItems = location.pathname.includes('/admin')
     ? menuItemsAdmin

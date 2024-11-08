@@ -20,7 +20,6 @@ export const ROUTE_PATH = {
   },
   MESSAGE: {
     INDEX: '/message',
-    ROOM: '/message/room',
   },
   DOCTOR: {
     INDEX: '/doctor',
@@ -34,7 +33,7 @@ export const ROUTE_PATH = {
   ADMIN: {
     INDEX: '/admin',
     DASHBOARD: '/admin/dashboard',
-    NOTIFICATION: '/admin/notification',
+    POST_MANAGEMENT: '/admin/post-management',
     ACCOUNT_MANAGEMENT: '/admin/account-management',
   },
   NOTFOUND: {

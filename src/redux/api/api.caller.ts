@@ -2,6 +2,7 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
 import customBaseQuery from "./fetchBase";
 import { IDoctorResponse } from "../../types/doctor"; // Adjust the import path as necessary
+
 export const apiCaller = createApi({
   reducerPath: "apiCaller",
   refetchOnMountOrArgChange: 30,

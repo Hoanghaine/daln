@@ -84,7 +84,7 @@ const DoctorCard = ({ name, avatar, id, description }: Doctor) => {
       </Box>
     </Grid>
   )
-}
+} 
 const TopDoctorCard = ({ name, avatar, id, description }: Doctor) => {
   return (
     <Grid

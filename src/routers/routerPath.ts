@@ -209,10 +209,10 @@ export const routes = [
         ),
       },
       {
-        label: 'Register management',
-        path: ROUTE_PATH.ADMIN.NOTIFICATION,
+        label: 'Post management',
+        path: ROUTE_PATH.ADMIN.POST_MANAGEMENT,
         component: React.lazy(
-          () => import('../pages/Admin/Notification/Notification.tsx'),
+          () => import('../pages/Admin/PostManagement/PostManagement.tsx'),
         ),
       },
       {
@@ -227,7 +227,7 @@ export const routes = [
   {
     label: 'Message',
     path: ROUTE_PATH.MESSAGE.INDEX,
-    layout: BlankLayout,
+    layout: ProtectedLayout,
     component: React.lazy(() => import('../pages/MessagePage/MessagePage')),
     exact: true,
   },

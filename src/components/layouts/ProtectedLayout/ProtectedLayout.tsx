@@ -70,7 +70,12 @@ function ProtectedLayout() {
       {isDoctorPath && renderCommonLayout()}
 
       {/* Message Layout */}
-      {isMessagePath && renderCommonLayout()}
+      {isMessagePath && (
+        <Box
+        >
+          {outlet}
+        </Box>
+      )}
 
       {/* Authen Layout */}
       {isAuthenPath && <Box>{outlet}</Box>}

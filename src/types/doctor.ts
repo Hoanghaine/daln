@@ -1,15 +1,22 @@
-export interface Doctor {
+export interface IDoctor {
+  id: number
   username: string
-  name: string
   email: string
+  name: string
   phone: string
   address: string
   dob: string
+  degree: string
   specialization: string
-  role: string
+  listCertificates: string[]
+  experience: string
+  imageUrl: string
+  about: string
+  status: string 
+  rating: number
 }
 
 export interface IDoctorResponse {
-  data: Doctor
+  data: IDoctor
   message: string
 }

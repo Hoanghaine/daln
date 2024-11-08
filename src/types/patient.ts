@@ -1,8 +1,9 @@
 export interface Ipatient {
+  id: number
   username: string
   name: string
   email: string
-  phone: number
+  phone: string
   address: string
   dob: string
   imageUrl: string

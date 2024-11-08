@@ -31,7 +31,13 @@ const data = [
 ]
 
 // Basic Card Component
-const BasicCard = ({ icon, title, value }) => {
+interface BasicCardProps {
+  icon: React.ReactNode
+  title: string
+  value: number
+}
+
+const BasicCard = ({ icon, title, value }: BasicCardProps) => {
   return (
     <Card
       sx={{
@@ -40,7 +46,12 @@ const BasicCard = ({ icon, title, value }) => {
         border: '1px solid #999',
         boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.1)',
         display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'flex-start',
+        alignItems: 'center',
+        height: '150px',
         gap: '16px',
+        margin: '0px',
       }}
     >
       {icon}
@@ -113,7 +124,13 @@ const bestChoiceDoctorData = [
 // Component hiển thị danh sách bác sĩ
 const ListBestChoiceDoctor = () => {
   return (
-    <Stack spacing={2}>
+    <Stack
+      spacing={1}
+      sx={{
+        width: '300px',
+      }}
+    >
+      <Typography variant='h6'>Top bác sĩ</Typography>
       {bestChoiceDoctorData.map((doctor, index) => (
         <Card
           key={index}
@@ -121,6 +138,7 @@ const ListBestChoiceDoctor = () => {
             display: 'flex',
             gap: '16px',
             padding: '16px',
+            borderRadius: '16px',
             border: '1px solid #ddd',
           }}
         >
@@ -139,7 +157,31 @@ const ListBestChoiceDoctor = () => {
     </Stack>
   )
 }
-
+const ListBasicCard = () => {
+  return (
+    <Stack
+      sx={{
+        width: '100%',
+        height: '150px',
+        // backgroundColor: 'yellow',
+        display: 'flex',
+        flexDirection: 'row',
+        flexWrap: 'nowrap',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+      }}
+    >
+      {basicCardData.map((card, index) => (
+        <BasicCard
+          key={index}
+          icon={card.icon}
+          title={card.title}
+          value={card.value}
+        />
+      ))}
+    </Stack>
+  )
+}
 function Dashboard() {
   return (
     <Box
@@ -149,7 +191,6 @@ function Dashboard() {
         padding: '16px',
       }}
     >
-      {/* Dropdown chọn tuần */}
       <Box
         sx={{
           display: 'flex',
@@ -160,6 +201,7 @@ function Dashboard() {
           width: 'fit-content',
           border: '1px solid #999',
           borderRadius: '16px',
+          mb: 2,
           boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.1)',
         }}
       >
@@ -167,25 +209,20 @@ function Dashboard() {
         Tuần này
       </Box>
 
-      {/* Layout gồm 2 cột: bên trái (cards + chart) và bên phải (list bác sĩ) */}
       <Box
         sx={{
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
-          gap: '16px',
-          marginTop: '16px',
+          display: 'flex',
+          justifyContent: 'space-between',
+          gap: 3,
         }}
       >
-        {/* Cột bên trái: 3 cards và biểu đồ */}
-        <Stack spacing={2}>
-          {basicCardData.map((card, index) => (
-            <BasicCard
-              key={index}
-              icon={card.icon}
-              title={card.title}
-              value={card.value}
-            />
-          ))}
+        <Stack
+          spacing={2}
+          sx={{
+            flex: 1,
+          }}
+        >
+          <ListBasicCard />
           <Box>
             <Card sx={{ border: '1px solid #00000033', borderRadius: '12px' }}>
               <CardContent>
