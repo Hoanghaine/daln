@@ -1,13 +1,13 @@
 import Grid from '@mui/material/Grid2'
 import loginImg from '../../../assets/login-img.png'
-import { Box, Typography, TextField, Button } from '@mui/material'
+import { Box, Typography, TextField, Button, Stack } from '@mui/material'
 import CustomizedMenus from './CustomizedMenus'
 import { toast } from 'react-toastify'
 
 import { useState } from 'react'
 import { useLoginMutation } from '../../../redux/api/api.caller' // API mutation
-import { User } from '../../../types/user'
-import { useNavigate } from 'react-router-dom'
+import { IUser } from '../../../types/user'
+import { Link, useNavigate } from 'react-router-dom'
 function Login() {
   const navigate = useNavigate()
   const [username, setUsername] = useState('') // Quản lý username
@@ -19,7 +19,13 @@ function Login() {
 
   // Hàm xử lý khi nhấn nút Đăng nhập
   const handleClickLogin = async () => {
-    const userData: User = { username, password, role } // Tạo object User
+    const userData: IUser = {
+      id: 0,
+      username,
+      password,
+      role,
+      status: 'APPROVED',
+    } // Tạo object User
     try {
       const response = await login(userData).unwrap() // Gọi API login
       console.log('Login response:', response)
@@ -56,11 +62,10 @@ function Login() {
   return (
     <Box
       sx={{
-        height: '100vh',
+        height: '100%',
         width: '100%',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
+        padding: '32px 0px',
+        position:'relative',  
       }}
     >
       <Grid
@@ -71,14 +76,29 @@ function Login() {
           margin: '0px auto',
           flexWrap: 'nowrap',
         }}
+        spacing={2}
       >
         <Grid size={6}>
           <Box
             sx={{
               display: 'flex',
               flexDirection: 'column',
+              gap: '16px',
             }}
           >
+            <Stack
+              flexDirection={'row'}
+              alignItems={'center'}
+              justifyContent={'flex-end'}
+              gap={1}
+            >
+              <Typography variant='body1' color='initial'>
+                Chưa có tài khoản?{' '}
+              </Typography>
+              <Button component={Link} variant='contained' to='/register'>
+                Đăng ký
+              </Button>
+            </Stack>
             <Typography variant='body1' color='initial'>
               Signin to PsyConnect
             </Typography>

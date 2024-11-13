@@ -16,6 +16,7 @@ import {
   Stack,
   Tabs,
   Tab,
+  Pagination,
 } from '@mui/material'
 import DeleteIcon from '@mui/icons-material/Delete'
 import LockIcon from '@mui/icons-material/Lock'
@@ -25,89 +26,12 @@ import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined'
 import { IDoctor } from '../../../types/doctor'
 import { Ipatient } from '../../../types/patient'
 import { IUser } from '../../../types/user'
+import { useEffect } from 'react'
+import {
+  useGetAccountsQuery,
+} from '../../../redux/api/api.caller'
+import LazyLoading from '../../../components/LazyLoading'
 // Mock data
-const accounts: IUser[] = [
-  {
-    id: 1,
-    username: 'John Doe',
-    password: '123',
-    role: 'patient',
-  },
-  {
-    id: 1,
-    username: 'John Doe',
-    password: '123',
-    role: 'patient',
-  },
-]
-const customerAccounts: Ipatient[] = [
-  {
-    id: 1,
-    username: 'benhnhan1',
-    name: 'benh nhan 1',
-    email: 'john@example.com',
-    phone: '0123456789',
-    address: '123 Main Street',
-    dob: '01/01/1990',
-    imageUrl: 'https://via.placeholder.com/150',
-  },
-  {
-    id: 2,
-    username: 'benhnhan2',
-    name: 'benh nhan 2',
-    email: 'john@example.com',
-    phone: '0123456789',
-    address: '123 Main Street',
-    dob: '01/01/1990',
-    imageUrl: 'https://via.placeholder.com/150',
-  },
-]
-
-const doctorAccounts: IDoctor[] = [
-  {
-    id: 1,
-    username: 'doctor1',
-    imageUrl: 'https://via.placeholder.com/150',
-    name: 'Dr. John Doe',
-    email: 'dr.john@example.com',
-    phone: '0123456789',
-    address: '123 Main Street',
-    specialization: 'Cardiologist',
-    experience: '5 years',
-    dob: '01/01/1990',
-    degree: 'MBBS, MD',
-    about:
-      'Dr. John Doe is a Cardiologist with 5 years of experience. He has a degree in MBBS and MD. He is an expert in treating heart-related diseases.',
-    listCertificates: [
-      'https://images.unsplash.com/photo-1730407787489-96c056ef4630?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxmZWF0dXJlZC1waG90b3MtZmVlZHw1fHx8ZW58MHx8fHx8',
-      'https://images.unsplash.com/photo-1730407787489-96c056ef4630?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxmZWF0dXJlZC1waG90b3MtZmVlZHw1fHx8ZW58MHx8fHx8',
-      'https://images.unsplash.com/photo-1730407787489-96c056ef4630?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxmZWF0dXJlZC1waG90b3MtZmVlZHw1fHx8ZW58MHx8fHx8',
-    ],
-    status: 'pending',
-  },
-  {
-    id: 2,
-    username: 'doctor2',
-    imageUrl: 'https://via.placeholder.com/150',
-
-    name: 'Dr. John Doe 2',
-    email: 'dr.john2@example.com',
-    phone: '0123456789',
-    address: '123 Main Street',
-    specialization: 'Cardiologist',
-    experience: '3 years',
-    dob: '01/01/1995',
-    degree: 'MBBS, MD',
-    about:
-      'Dr. John Doe is a Cardiologist with 5 years of experience. He has a degree in MBBS and MD. He is an expert in treating heart-related diseases.',
-    listCertificates: [
-      'https://images.unsplash.com/photo-1730407787489-96c056ef4630?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxmZWF0dXJlZC1waG90b3MtZmVlZHw1fHx8ZW58MHx8fHx8',
-      'https://images.unsplash.com/photo-1730407787489-96c056ef4630?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxmZWF0dXJlZC1waG90b3MtZmVlZHw1fHx8ZW58MHx8fHx8',
-      'https://images.unsplash.com/photo-1730407787489-96c056ef4630?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxmZWF0dXJlZC1waG90b3MtZmVlZHw1fHx8ZW58MHx8fHx8',
-    ],
-    status: 'approved',
-  },
-]
 
 function AccountManagement() {
   const [isDoctor, setIsDoctor] = useState(false)
@@ -116,7 +40,31 @@ function AccountManagement() {
   >(null)
   const [openDialog, setOpenDialog] = useState(false)
   const [currentTab, setCurrentTab] = useState(0)
+  const [page, setPage] = useState(0)
+  const {
+    data: accountsData,
+    isLoading,
+    isError,
+  } = useGetAccountsQuery({ page, size: 10 })
 
+  const customerAccounts = accountsData?.data.elements.filter(
+    account => account.role === 'patient',
+  )
+  const doctorAccounts = accountsData?.data.elements.filter(
+    account => account.role === 'doctor',
+  )
+  if (accountsData) {
+    console.log(accountsData.data.elements)
+  }
+
+  if (isLoading) return <LazyLoading />
+  if (isError || !accountsData?.data.elements.length) {
+    return (
+      <Typography variant='h6' color='error'>
+        Error fetching posts or no posts available.
+      </Typography>
+    )
+  }
   // Mở popup xem chi tiết tài khoản
   const handleOpenDialog = (
     account: Ipatient | IDoctor,
@@ -126,7 +74,14 @@ function AccountManagement() {
     setIsDoctor(isDoctorAccount)
     setOpenDialog(true)
   }
+  const handleDeleteAccount = (accountId: number) => {
+    // Call delete API or dispatch action
+    // if (window.confirm(`Are you sure you want to delete this account?`)) {
+    //   deleteAccountApiCall(accountId); // Implement this function
+    // }
 
+    console.log(`Delete account with id: ${accountId}`)
+  }
   const handleCloseDialog = () => {
     setOpenDialog(false)
     setSelectedAccount(null)
@@ -249,15 +204,18 @@ function AccountManagement() {
         <Tab label='Tài khoản bác sĩ' />
       </Tabs>
 
-      {/* Tab panel for Customer Accounts */}
-      {currentTab === 0 && (
+      {/* {currentTab === 0 && (
         <Box mt={2}>{renderAccountTable(customerAccounts)}</Box>
       )}
 
-      {/* Tab panel for Doctor Accounts */}
       {currentTab === 1 && (
         <Box mt={2}>{renderAccountTable(doctorAccounts, true)}</Box>
       )}
+      <Pagination
+        count={Math.ceil(totalAccounts / 10)} // totalAccounts from API
+        page={page + 1}
+        onChange={(event, newPage) => setPage(newPage - 1)}
+      /> */}
 
       {selectedAccount && (
         <Dialog

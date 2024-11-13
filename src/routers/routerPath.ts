@@ -67,8 +67,10 @@ export const routes = [
         component: React.lazy(
           () => import('../pages/MainPage/FindDoctor/DoctorDetail.tsx'),
         ),
+        params: {
+          doctorId: ':doctorId',
+        },
       },
-
       {
         label: 'Forum',
         path: ROUTE_PATH.ROOT.FORUM,
@@ -86,6 +88,9 @@ export const routes = [
         component: React.lazy(
           () => import('../pages/MainPage/Forum/DetailPost.tsx'),
         ),
+        params: {
+          postId: ':postId',
+        },
       },
       {
         label: 'New and Event',
@@ -111,8 +116,11 @@ export const routes = [
         exact: true,
 
         component: React.lazy(
-          () => import('../pages/MainPage/DoctorDetail/DoctorDetail.tsx'),
+          () => import('../pages/MainPage/FindDoctor/DoctorDetail.tsx'),
         ),
+        params: {
+          id: ':id',
+        },
       },
       {
         label: 'Treatment History',

@@ -1,7 +1,6 @@
 import { Box, Stack, Typography, Card,CardContent } from '@mui/material'
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 import PersonOutlineOutlinedIcon from '@mui/icons-material/PersonOutlineOutlined'
-import StarBorderOutlinedIcon from '@mui/icons-material/StarBorderOutlined'
 import {
   LineChart,
   Line,

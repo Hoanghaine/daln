@@ -7,18 +7,22 @@ import {
   InputBase,
   MenuItem,
   Menu,
+  Rating,
+  Stack,
 } from '@mui/material'
 import SearchIcon from '@mui/icons-material/Search'
 
 import Grid from '@mui/material/Grid2'
 import { Link } from 'react-router-dom'
 import findDoctor from '../../../assets/doctor_find_background.jpg'
-interface Doctor {
-  id: string
-  name: string
-  avatar: string
-  description: string
-}
+import { IDoctorsBasicInfor } from '../../../types/doctor'
+import { useState } from 'react'
+import {
+  useGetSpecializationsQuery,
+  useLazyGetDoctorsBasicInforQuery,
+} from '../../../redux/api/api.caller'
+import { useEffect } from 'react'
+import LazyLoading from '../../../components/LazyLoading'
 const Searchbox = () => (
   <Paper
     component='form'
@@ -34,19 +38,29 @@ const Searchbox = () => (
     />
   </Paper>
 )
-const DoctorCard = ({ name, avatar, id, description }: Doctor) => {
+const DoctorCard = ({
+  name,
+  avatar,
+  id,
+  specialization,
+  avgRating,
+}: IDoctorsBasicInfor) => {
   return (
     <Grid
       size={3}
       sx={{
         display: 'flex',
         flexDirection: 'column',
-        gap: '16px',
         padding: '16px',
         alignItems: 'center',
         justifyContent: 'center',
         backgroundColor: '#fff',
         borderRadius: '8px',
+        cursor: 'pointer',
+        transition: 'all 0.3s',
+        '&:hover': {
+          boxShadow: '0px 0px 8px 0px rgba(0,0,0,0.2)',
+        },
       }}
     >
       <Box
@@ -59,13 +73,36 @@ const DoctorCard = ({ name, avatar, id, description }: Doctor) => {
           borderRadius: '8px',
         }}
       />
-      <Box>
-        <Typography variant='h6' color={'#65AD45'}>
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+        }}
+      >
+        <Typography variant='body1' color={'#65AD45'} sx={{ m: 0 }}>
           {name}
         </Typography>
-        <Typography variant='body2' mb={2}>
-          {description}
-        </Typography>
+        <Typography variant='body2'>Chuyên môn: {specialization}</Typography>
+        <Stack
+          sx={{
+            display: 'flex',
+            flexDirection: 'row',
+            gap: '4px',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+        >
+          <Typography variant='body1' color='initial'>
+            {avgRating.toFixed(1)}%
+          </Typography>
+          <Rating
+            name='read-only'
+            value={avgRating}
+            readOnly
+            sx={{ fontSize: '18px' }}
+          />
+        </Stack>
         <Button
           variant='contained'
           sx={{
@@ -77,15 +114,20 @@ const DoctorCard = ({ name, avatar, id, description }: Doctor) => {
             },
           }}
           component={Link}
-          to={`/doctor-detail/${id}`}
+          to={`/find-doctor/${id}`}
         >
           Xem thông tin
         </Button>
       </Box>
     </Grid>
   )
-} 
-const TopDoctorCard = ({ name, avatar, id, description }: Doctor) => {
+}
+const TopDoctorCard = ({
+  name,
+  avatar,
+  id,
+  specialization,
+}: IDoctorsBasicInfor) => {
   return (
     <Grid
       size={12}
@@ -94,7 +136,7 @@ const TopDoctorCard = ({ name, avatar, id, description }: Doctor) => {
         gap: '16px',
         padding: '8px',
         alignItems: 'center',
-        justifyContent: 'center',
+        justifyContent: 'flex-start',
         backgroundColor: '#fff',
         boxShadow: '0px 0px 8px 0px rgba(0,0,0,0.1)',
         borderRadius: '8px',
@@ -116,107 +158,99 @@ const TopDoctorCard = ({ name, avatar, id, description }: Doctor) => {
           {name}
         </Typography>
         <Typography variant='body2' mb={2}>
-          {description}
+          {specialization}
         </Typography>
-        {/* <Button
-          variant='contained'
-          sx={{
-            backgroundColor: '#65AD45',
-            color: '#fff',
-            borderRadius: '16px',
-            padding: '4px 16px',
-            fontSize: '13px',
-            '&:hover': {
-              backgroundColor: '#3C5EAB',
-            },
-          }}
-          component={Link}
-          to={`/doctors/${id}`}
-        >
-          Xem thông tin
-        </Button> */}
       </Box>
     </Grid>
   )
 }
-const topDoctors: Doctor[] = [
-  {
-    id: '1',
-    name: 'Nguyễn Văn A',
-    avatar: 'https://phongkhamtamly.com/wp-content/uploads/2024/09/7.png',
-    description: 'Chuyên gia tâm lý trị liệu',
-  },
-  {
-    id: '2',
-    name: 'Nguyễn Văn B',
-    avatar: 'https://phongkhamtamly.com/wp-content/uploads/2024/09/7.png',
-    description: 'Chuyên gia tâm lý trị liệu',
-  },
-  {
-    id: '3',
-    name: 'Nguyễn Văn C',
-    avatar: 'https://phongkhamtamly.com/wp-content/uploads/2024/09/7.png',
-    description: 'Chuyên gia tâm lý trị liệu',
-  },
-  {
-    id: '4',
-    name: 'Nguyễn Văn D',
-    avatar: 'https://phongkhamtamly.com/wp-content/uploads/2024/09/7.png',
-    description: 'Chuyên gia tâm lý trị liệu',
-  },
-]
-const doctors: Doctor[] = [
-  {
-    id: '1',
-    name: 'Nguyễn Văn A',
-    avatar: 'https://phongkhamtamly.com/wp-content/uploads/2024/09/7.png',
-    description: 'Chuyên gia tâm lý trị liệu',
-  },
-  {
-    id: '2',
-    name: 'Nguyễn Văn B',
-    avatar: 'https://phongkhamtamly.com/wp-content/uploads/2024/09/7.png',
-    description: 'Chuyên gia tâm lý trị liệu',
-  },
-  {
-    id: '3',
-    name: 'Nguyễn Văn C',
-    avatar: 'https://phongkhamtamly.com/wp-content/uploads/2024/09/7.png',
-    description: 'Chuyên gia tâm lý trị liệu',
-  },
-  {
-    id: '4',
-    name: 'Nguyễn Văn D',
-    avatar: 'https://phongkhamtamly.com/wp-content/uploads/2024/09/7.png',
-    description: 'Chuyên gia tâm lý trị liệu',
-  },
-  {
-    id: '5',
-    name: 'Nguyễn Văn A',
-    avatar: 'https://phongkhamtamly.com/wp-content/uploads/2024/09/7.png',
-    description: 'Chuyên gia tâm lý trị liệu',
-  },
-  {
-    id: '6',
-    name: 'Nguyễn Văn B',
-    avatar: 'https://phongkhamtamly.com/wp-content/uploads/2024/09/7.png',
-    description: 'Chuyên gia tâm lý trị liệu',
-  },
-  {
-    id: '7',
-    name: 'Nguyễn Văn C',
-    avatar: 'https://phongkhamtamly.com/wp-content/uploads/2024/09/7.png',
-    description: 'Chuyên gia tâm lý trị liệu',
-  },
-  {
-    id: '8',
-    name: 'Nguyễn Văn D',
-    avatar: 'https://phongkhamtamly.com/wp-content/uploads/2024/09/7.png',
-    description: 'Chuyên gia tâm lý trị liệu',
-  },
-]
 
 function FindDoctor() {
+  const [page, setPage] = useState<number>(0)
+  const [doctors, setDoctors] = useState<IDoctorsBasicInfor[]>([])
+  const [isLoading, setIsLoading] = useState<boolean>(false)
+
+  // Lazy queries for the two API calls
+  const [triggerGetDoctors, { isLoading: isGetDoctorsLoading }] =
+    useLazyGetDoctorsBasicInforQuery()
+
+  const { data: specializationsData } = useGetSpecializationsQuery({})
+
+  const fetchAllDoctors = async () => {
+    console.log('fetchAllDoctors')
+    setIsLoading(true)
+    const { data, error } = await triggerGetDoctors({ page, size: 10 })
+
+    // Check for errors, handle if needed
+    if (error) {
+      console.error('Error fetching doctors:', error)
+      setIsLoading(false)
+      return
+    }
+
+    // Map the response to state (elements is inside data)
+    setDoctors(data?.data?.elements || [])
+    setIsLoading(false)
+  }
+
+  const fetchDoctorsBySpecialization = async (specialization: string) => {
+    console.log('fetchDoctorsBySpecialization')
+    setIsLoading(true)
+    const { data, error } = await triggerGetDoctors({
+      page,
+      size: 10,
+      specialization,
+    })
+    // Check for errors, handle if needed
+    if (error) {
+      console.error('Error fetching doctors:', error)
+      setIsLoading(false)
+      return
+    }
+    console.log('doctors:', data?.data?.elements)
+    setDoctors(data?.data?.elements || [])
+    setIsLoading(false)
+  }
+
+  const handleSpecializationChange = async (
+    event: React.MouseEvent<HTMLButtonElement>,
+    specialization: string | null,
+  ) => {
+    event.preventDefault()
+    console.log('Button clicked, specialization:', specialization)
+    setPage(0) // Reset page to 0 on specialization change
+    if (specialization) {
+      await fetchDoctorsBySpecialization(specialization)
+    } else {
+      await fetchAllDoctors()
+    }
+  }
+
+  useEffect(() => {
+    const fetchDoctorsBySpecialization = async () => {
+      console.log('fetchDoctorsBySpecialization')
+      setIsLoading(true)
+      const { data, error } = await triggerGetDoctors({
+        page,
+        size: 10,
+      })
+      // Check for errors, handle if needed
+      if (error) {
+        console.error('Error fetching doctors:', error)
+        setIsLoading(false)
+        return
+      }
+      console.log('doctors:', data?.data?.elements)
+      setDoctors(data?.data?.elements || [])
+      setIsLoading(false)
+    }
+    fetchDoctorsBySpecialization()
+  }, [page])
+
+  if (isLoading || isGetDoctorsLoading) {
+    return <LazyLoading />
+  }
+
   return (
     <Box>
       <Box
@@ -332,17 +366,34 @@ function FindDoctor() {
             }}
           >
             <Typography variant='body1' color='initial'>
-              Lọc bác sĩ:{' '}
+              Lọc bác sĩ:
             </Typography>
-            <Button variant='outlined'>Tất cả</Button>
-            <Button variant='outlined'>Tâm lý học</Button>
-            <Button variant='outlined'>Tâm thần học</Button>
-            <Button variant='outlined'>Tâm lý học trẻ em</Button>
+            <Button
+              variant='outlined'
+              onClick={event => handleSpecializationChange(event, null)}
+            >
+              Tất cả
+            </Button>
+            {specializationsData?.data.elements.map(
+              (specialization: string) => (
+                <Button
+                  key={specialization}
+                  variant='outlined'
+                  onClick={event =>
+                    handleSpecializationChange(event, specialization)
+                  }
+                >
+                  {specialization}
+                </Button>
+              ),
+            )}
           </Box>
         </Grid>
         <Grid size={9}>
-          <Grid container>
-            {doctors.map((doctor, index) => DoctorCard(doctor))}
+          <Grid container spacing={1}>
+            {doctors.map(doctor => (
+              <DoctorCard key={doctor.id} {...doctor} />
+            ))}
           </Grid>
         </Grid>
         <Grid size={2.5}>
@@ -350,7 +401,9 @@ function FindDoctor() {
             Top bác sĩ của tháng
           </Typography>
           <Grid container sx={{ flexDirection: 'column' }}>
-            {topDoctors.map((doctor, index) => TopDoctorCard(doctor))}
+            {doctors.map(doctor => (
+              <TopDoctorCard key={doctor.id} {...doctor} />
+            ))}
           </Grid>
         </Grid>
       </Grid>

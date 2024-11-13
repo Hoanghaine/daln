@@ -7,7 +7,7 @@ function DiseaseTest() {
     <Box
       sx={{
         backgroundImage: `url(${testBackground})`,
-        backgroundPosition: '',
+        backgroundPosition: 'center bottom',
         backgroundSize: '100%',
         height: '650px',
       }}

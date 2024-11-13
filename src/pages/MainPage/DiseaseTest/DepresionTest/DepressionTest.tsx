@@ -1,11 +1,14 @@
 import { Box, Button, Typography, Stack } from '@mui/material'
 import React from 'react'
-import { Link } from 'react-router-dom'
 import logo from '../../../../assets/logo.png'
 import FileDownloadOutlinedIcon from '@mui/icons-material/FileDownloadOutlined'
 import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined'
 import SuggestDoctors from '../../../../components/mainPage/SuggestDoctors'
 import AutorenewIcon from '@mui/icons-material/Autorenew'
+
+import { IQuiz } from '../../../../types/quiz'
+import { useGetQuizzesQuery, useSubmitQuizzesMutation } from '../../../../redux/api/api.caller'
+
 const Introduction = ({ onNext }: { onNext: () => void }) => {
   return (
     <Box
@@ -70,33 +73,8 @@ const Introduction = ({ onNext }: { onNext: () => void }) => {
     </Box>
   )
 }
-const getCirclePosition = (score: number) => {
-  // Position the circle based on score (0 to 10)
-  return `${(score / 10) * 100}%`
-}
 
-const questions = [
-  {
-    question: 'Bạn có cảm thấy buồn chán hoặc tuyệt vọng không?',
-    answers: ['Không bao giờ', 'Thỉnh thoảng', 'Thường xuyên', 'Luôn luôn'],
-  },
-  {
-    question: 'Bạn có cảm thấy mất hứng thú với các hoạt động hàng ngày không?',
-    answers: ['Không bao giờ', 'Thỉnh thoảng', 'Thường xuyên', 'Luôn luôn'],
-  },
-  {
-    question: 'Bạn có cảm thấy mệt mỏi hoặc thiếu năng lượng không?',
-    answers: ['Không bao giờ', 'Thỉnh thoảng', 'Thường xuyên', 'Luôn luôn'],
-  },
-]
-
-interface QuestionProps {
-  question: string
-  answers: string[]
-  onAnswer: (answerIndex: number) => void
-}
-
-const Question = ({ question, answers, onAnswer }: QuestionProps) => {
+const Question = ({ id, question, choice, onAnswer }: { id: number, question: string, choice: string[], onAnswer: (id: number, choiced: string) => void }) => {
   return (
     <Box
       sx={{
@@ -117,15 +95,15 @@ const Question = ({ question, answers, onAnswer }: QuestionProps) => {
           alignItems: 'center',
         }}
       >
-        {answers.map((answer, index) => (
+        {choice.map((choice, index) => (
           <Button
             variant='outlined'
             color='primary'
             sx={{ margin: '8px' }}
             key={index}
-            onClick={() => onAnswer(index)}
+            onClick={() => onAnswer(id,choice)}
           >
-            {answer}
+            {choice}
           </Button>
         ))}
       </Stack>
@@ -147,28 +125,59 @@ const getDepressionLevel = (score: number) => {
 }
 export default function DepressionTest() {
   const [step, setStep] = React.useState(0)
-  const [answers, setAnswers] = React.useState<number[]>([])
 
-  const handleNextStep = () => {
-    setStep(prevStep => prevStep + 1)
+  const [hasSubmitted, setHasSubmitted] = React.useState(false);
+  const [answers, setAnswers] = React.useState<{ quizId: number; answer: string }[]>([])
+
+  const { data: response, isLoading } = useGetQuizzesQuery();
+  const [submitQuizzes] = useSubmitQuizzesMutation();
+
+  const listQuiz: IQuiz[] = response?.data || []
+
+  const handleAnswer = (id: number, choiced: string) => {
+    setAnswers(prevAnswers => [...prevAnswers, { quizId: id, answer: choiced }])
+
+    handleNextStep()  
+
   }
 
-  const handleAnswer = (answerIndex: number) => {
-    setAnswers(prevAnswers => [...prevAnswers, answerIndex])
-    handleNextStep()
+  const handleNextStep = () => {
+    setStep(step + 1)
   }
 
   const handleRestart = () => {
     setStep(0)
     setAnswers([])
   }
+
   const getCirclePosition = (score: number) => {
     // Chia thang điểm từ 0 đến 10 thành các phần
     return `${(score / 10) * 100}%`
   }
 
-  const totalScore = answers.reduce((acc, curr) => acc + curr, 0)
-  const depressionLevel = getDepressionLevel(totalScore)
+
+
+  const handleSubmit = async () => {
+    const iQuizSubmit = [...answers]
+    try {
+      const response = await submitQuizzes(iQuizSubmit).unwrap()
+      console.log('Submit response:', response)
+    } catch (error) {
+      console.error('Submit failed:', error)
+    }
+  }
+  React.useEffect(() => {
+    if (listQuiz.length !== 0 && answers.length === listQuiz.length && !hasSubmitted) {
+      handleSubmit();
+      setHasSubmitted(true); // Set to true to prevent multiple submissions
+      console.log('under submit');
+    }
+  }, [answers, listQuiz, hasSubmitted]); 
+
+  if (isLoading) {
+    return <div>Loading...</div>; 
+  }
+  
   return (
     <Box
       sx={{
@@ -178,20 +187,22 @@ export default function DepressionTest() {
 
         justifyContent: 'center',
         backgroundColor: '#f0f0f0',
-        height: step > questions.length ? 'fit-content' : '600px',
+        height: step > 3 ? 'fit-content' : '600px',
 
         padding: '30px',
       }}
     >
       {step === 0 && <Introduction onNext={handleNextStep} />}
-      {step > 0 && step <= questions.length && (
-        <Question
-          question={questions[step - 1].question}
-          answers={questions[step - 1].answers}
-          onAnswer={handleAnswer}
-        />
+      {step > 0 && step <= listQuiz.length && (
+          <Question
+            id={listQuiz[step - 1]?.id || 0}
+            question={listQuiz[step - 1]?.question || ''}
+            choice={listQuiz[step - 1]?.choice || []}
+            onAnswer={handleAnswer}
+          />
       )}
-      {step > questions.length && (
+      {step > listQuiz?.length && (
+        
         <Box>
           <Box
             sx={{
@@ -402,7 +413,7 @@ export default function DepressionTest() {
                   <tbody>
                     <tr>
                       <td>Trầm cảm</td>
-                      <td>{totalScore}</td>
+                      {/* <td>{totalScore}</td> */}
                       <td>
                         <Box
                           sx={{
@@ -426,7 +437,7 @@ export default function DepressionTest() {
                             sx={{
                               position: 'absolute',
                               top: '-5px',
-                              left: getCirclePosition(totalScore), // Vị trí của vòng tròn dựa trên tổng điểm
+                              // left: getCirclePosition(totalScore),
                               transform: 'translateX(-50%)',
                               width: '30px',
                               height: '30px',

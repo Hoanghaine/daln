@@ -1,9 +1,76 @@
-import { Box, Typography, Stack, Divider } from '@mui/material'
-import React from 'react'
+import { Box, Typography, Stack, Divider, Avatar, Rating } from '@mui/material'
 import Grid from '@mui/material/Grid2'
 import { useParams } from 'react-router-dom'
+import {
+  JSXElementConstructor,
+  Key,
+  ReactElement,
+  ReactNode,
+  ReactPortal,
+  useEffect,
+  useState,
+} from 'react'
+import {
+  useGetDoctorDetailQuery,
+  useGetDoctorCommentsQuery,
+} from '../../../redux/api/api.caller'
+import LazyLoading from '../../../components/LazyLoading'
 export default function DoctorDetail() {
-  const { doctorID } = useParams()
+  const { id } = useParams<{ id: string }>()
+  const idDoctor = id ? parseInt(id) : 0
+  const {
+    data: doctorData,
+    isLoading: isDoctorLoading,
+    isError: isDoctorError,
+  } = useGetDoctorDetailQuery(idDoctor)
+
+  const {
+    data: commentData,
+    isLoading: isCommentLoading,
+    isError: isCommentError,
+  } = useGetDoctorCommentsQuery(idDoctor)
+
+  const [currentIndex, setCurrentIndex] = useState(0)
+  const commentsPerPage = 3
+
+  // Change comments every 3 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (commentData && commentData.data.elements.length > 0) {
+        setCurrentIndex(
+          prevIndex =>
+            (prevIndex + commentsPerPage) % commentData.data.elements.length,
+        )
+      }
+    }, 3000) // Change every 3 seconds
+
+    return () => clearInterval(interval) // Cleanup the interval on unmount
+  }, [commentData])
+
+  if (isDoctorLoading || isCommentLoading) return <LazyLoading />
+  if (isDoctorError || !doctorData || isCommentError || !commentData) {
+    return (
+      <Typography variant='h6' color='error'>
+        Error fetching data or no data available.
+      </Typography>
+    )
+  }
+
+  const doctor = doctorData.data
+  const comments = commentData.data.elements
+  const displayedComments = comments.slice(
+    currentIndex,
+    currentIndex + commentsPerPage,
+  )
+
+  // Handle the case when there are fewer comments than 3 or we're at the end of the array
+  const commentsToShow =
+    displayedComments.length < commentsPerPage
+      ? [
+          ...displayedComments,
+          ...comments.slice(0, commentsPerPage - displayedComments.length),
+        ]
+      : displayedComments
   return (
     <Box>
       <Grid
@@ -34,12 +101,9 @@ export default function DoctorDetail() {
                 padding: '16px',
               }}
             >
-              <h2>Doctor Details for ID: {doctorID}</h2>
               <Box
                 component={'img'}
-                src={
-                  'https://phongkhamtamly.com/wp-content/uploads/2024/10/n-bac-si-dung.jpg'
-                }
+                src={doctor.avatar}
                 sx={{
                   margin: '0px',
                   width: '100%',
@@ -56,7 +120,8 @@ export default function DoctorDetail() {
                 }}
               >
                 <Typography variant={'h5'} color='#65AD45'>
-                  TS. BSCK II NGUYỄN VĂN DŨNG
+                  {doctor.degree}
+                  {doctor.name}
                 </Typography>
                 <Typography variant={'body1'} color='#65AD45'>
                   Phó viện trưởng – Viện sức khỏe tâm thần Bệnh viện Bạch Mai Hà
@@ -71,7 +136,7 @@ export default function DoctorDetail() {
                       marginBottom: '8px',
                     }}
                   >
-                    Họ và tên: Nguyễn Văn Dũng
+                    Họ và tên: {doctor.name}
                   </li>
                   <li
                     style={{
@@ -95,8 +160,7 @@ export default function DoctorDetail() {
                 </ul>
                 <Typography variant={'h6'}>THÔNG TIN LIÊN HỆ</Typography>
                 <Typography variant='body1'>
-                  Địa chỉ: Tầng 7 toà nhà 59 Võ Chí Công, Phường Nghĩa Đô, Quận
-                  Cầu Giấy, Tp. Hà Nội, Việt Nam
+                  Địa chỉ: {doctor.address}
                 </Typography>
               </Stack>
             </Box>
@@ -111,30 +175,123 @@ export default function DoctorDetail() {
                 KINH NGHIỆM LÀM VIỆC CÁ NHÂN
               </Typography>
               <Typography variant='body1' color='initial'>
-                Tiến sĩ Bác sĩ Chuyên khoa 2 Nguyễn Văn Dũng là bác sĩ Cao cấp
-                hàng đầu của Viện sức khỏe tâm thần – Bệnh viện Bạch Mai. Hiện
-                bác sĩ đang giữ cương vị Phó viện trưởng-Viện sức khỏe tâm
-                thần-Bệnh viện Bạch Mai Là người thầy luôn tận tâm với bệnh
-                nhân, với nhiều năm kinh nghiệm công tác tại các Bệnh viện tuyến
-                đầu Việt Nam về lĩnh vực “Sức khỏe tâm thần” đã giúp cho rất
-                nhiều bệnh nhân có thể trở lại cuộc sống bình thường. TS. BSCK
-                II Nguyễn Văn Dũng trong quá trình công tác của mình đã có rất
-                nhiều “Bằng khen” mà trong đó có danh hiệu rất cao quý của người
-                thầy thuốc: “Thầy thuốc Ưu tú” do Thủ tướng chính phủ nhà nước
-                Cộng hòa xã hội chủ nghĩa Việt Nam khen tặng. Với nhiều thành
-                tích đóng góp trong công tác phòng, chống và cống hiến trong sự
-                nghiệp bảo vệ và nâng cao Sức khỏe của nhân dân. Ngoài vai trò
-                là người thầy thuốc chữa bệnh cho rất nhiều bệnh nhận, thầy còn
-                đảm nhiệm thêm một vai trò vô cùng to lớn nữa đó là: Tham gia
-                đào tạo nâng cao trình độ của các cán bộ trong ngành, giảng dạy
-                các sinh viên của các Trường đại học nhằm xây dựng đội ngũ y bác
-                sĩ kế cận trong tương lai cho đất nước( như: Đại học Y Hà Nội,
-                Đại học Y Hải Phòng, Đại học Y Tây Nguyên).
+                {doctor.about}
               </Typography>
             </Box>
           </Box>
         </Grid>
       </Grid>
+      <Box
+        sx={{
+          maxWidth: '1152px',
+          padding: '16px 0',
+          backgroundColor: '#F8F6F7',
+          margin: '0px auto',
+          alignItems: 'center',
+          mb: 2,
+        }}
+      >
+        <Typography variant='h6' color='#65AD45' textAlign={'center'} mb={2}>
+          Bệnh nhân đánh giá
+        </Typography>
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-evenly',
+            padding: '0 30px',
+          }}
+        >
+          {comments.length > 0 ? (
+            commentsToShow.map(
+              (
+                comment: {
+                  avatar: string | undefined
+                  fullName:
+                    | string
+                    | number
+                    | boolean
+                    | ReactElement<any, string | JSXElementConstructor<any>>
+                    | Iterable<ReactNode>
+                    | ReactPortal
+                    | null
+                    | undefined
+                  username:
+                    | string
+                    | number
+                    | boolean
+                    | ReactElement<any, string | JSXElementConstructor<any>>
+                    | Iterable<ReactNode>
+                    | ReactPortal
+                    | null
+                    | undefined
+                  content:
+                    | string
+                    | number
+                    | boolean
+                    | ReactElement<any, string | JSXElementConstructor<any>>
+                    | Iterable<ReactNode>
+                    | ReactPortal
+                    | null
+                    | undefined
+                  rating: {
+                    toFixed: (arg0: number) => number | null | undefined
+                  }
+                },
+                index: Key | null | undefined,
+              ) => (
+                <Box
+                  key={index}
+                  sx={{
+                    minWidth: '300px',
+                    padding: '16px',
+                    border: '1px solid #e0e0e0',
+                    borderRadius: '8px',
+                    backgroundColor: '#fff',
+                    transition: 'all 0.5s ease-in-out',
+                  }}
+                >
+                  <Stack gap='8px'>
+                    <Stack
+                      direction={'row'}
+                      gap={'16px'}
+                      alignContent={'center'}
+                    >
+                      <Avatar src={comment.avatar}></Avatar>
+                      <Stack direction='column' gap='4px'>
+                        <Typography variant='body1' fontWeight='bold'>
+                          {comment.fullName}
+                        </Typography>
+                        <Typography variant='body2'>
+                          {comment.username}
+                        </Typography>
+                      </Stack>
+                    </Stack>
+                    <Typography variant='body2'>{comment.content}</Typography>
+                    <Typography
+                      variant='body2'
+                      color='#FFD700'
+                      display={'flex'}
+                      alignItems={'center'}
+                    >
+                      Đánh giá:{' '}
+                      <Rating
+                        name='read-only'
+                        value={comment.rating.toFixed(1)}
+                        readOnly
+                        sx={{ fontSize: '16px' }}
+                      />
+                    </Typography>
+                  </Stack>
+                </Box>
+              ),
+            )
+          ) : (
+            <Typography variant='body2' color='textSecondary'>
+              Không có đánh giá nào
+            </Typography>
+          )}
+        </Box>
+      </Box>
     </Box>
   )
 }

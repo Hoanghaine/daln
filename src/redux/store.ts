@@ -1,6 +1,6 @@
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux'
 import { Reducer, combineReducers, configureStore } from '@reduxjs/toolkit'
-import { persistReducer, persistStore } from 'redux-persist'
+import {  persistStore } from 'redux-persist'
 import { apiCaller } from './api/api.caller'
 
 const rtkQueryMiddleware = [apiCaller.middleware]

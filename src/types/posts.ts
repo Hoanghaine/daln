@@ -1,18 +1,15 @@
 export interface IPost {
-  id: number
-  title: string
-  content: string
-  author: string
-  createAt: string
-  thumbnail: string
-  tag: string
-  totalComment: number
-  totalLikes: number
-  avatar: string
+  id: number;
+  title: string;
+  author: string;
+  createdAt: string;
+  content: string;
+  tag: string;
+  totalComment: number;
+  totalLikes: number;
+  avatar: string;
+  thumbnail: string;
 }
 
-export interface IPostResponse {
-  status: string
-  message: string
-  data: IPost
-}
+
+

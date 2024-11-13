@@ -78,7 +78,12 @@ function ProtectedLayout() {
       )}
 
       {/* Authen Layout */}
-      {isAuthenPath && <Box>{outlet}</Box>}
+      {isAuthenPath && <Box
+        sx={{
+          w:"100%",
+          height:"100vh",
+        }}
+      >{outlet}</Box>}
 
       {/* Main Website Layout */}
       {!isAdminPath && !isDoctorPath && !isMessagePath && !isAuthenPath && (

@@ -3,6 +3,39 @@ import Grid from '@mui/material/Grid2'
 import SearchIcon from '@mui/icons-material/Search'
 import CallIcon from '@mui/icons-material/Call'
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz'
+
+// Mock data for messages
+const mockMessages = [
+  {
+    id: 1,
+    sender: 'Bạn',
+    content: 'Xin chào!',
+    timestamp: '10:00 AM',
+    isOwnMessage: true,
+  },
+  {
+    id: 2,
+    sender: 'Tên người gửi',
+    content: 'Chào bạn, bạn có khỏe không?',
+    timestamp: '10:02 AM',
+    isOwnMessage: false,
+  },
+  {
+    id: 3,
+    sender: 'Bạn',
+    content: 'Mình ổn, cảm ơn! Bạn thì sao?',
+    timestamp: '10:03 AM',
+    isOwnMessage: true,
+  },
+  {
+    id: 4,
+    sender: 'Tên người gửi',
+    content: 'Mình cũng khỏe, cảm ơn đã hỏi!',
+    timestamp: '10:05 AM',
+    isOwnMessage: false,
+  },
+]
+
 const ChatCard = () => {
   return (
     <Stack
@@ -30,6 +63,29 @@ const ChatCard = () => {
     </Stack>
   )
 }
+
+
+// Function to render individual messages
+const Message = ({ content, timestamp, isOwnMessage }) => {
+  return (
+    <Stack
+      sx={{
+        alignSelf: isOwnMessage ? 'flex-end' : 'flex-start',
+        backgroundColor: isOwnMessage ? '#DCF8C6' : '#E0E0E0',
+        padding: '8px 16px',
+        borderRadius: '16px',
+        maxWidth: '60%',
+        marginBottom: '8px',
+      }}
+    >
+      <Typography variant='body1'>{content}</Typography>
+      <Typography variant='caption' sx={{ alignSelf: 'flex-end', color: '#888' }}>
+        {timestamp}
+      </Typography>
+    </Stack>
+  )
+}
+
 function MessagePage() {
   return (
     <Box
@@ -47,7 +103,7 @@ function MessagePage() {
           borderRadius: '8px',
         }}
       >
-        <Grid size={4} sx={{}}>
+        <Grid size={4}>
           <Stack
             sx={{
               height: '100%',
@@ -154,13 +210,23 @@ function MessagePage() {
                 flexDirection: 'column',
                 gap: '16px',
                 padding: '16px',
-                alignItems: 'center',
-                justifyContent: 'center',
                 backgroundColor: '#fff',
                 borderRadius: '8px',
                 flex: 1,
+                width: '100%',
+                overflowY: 'auto', // Allows scrolling if messages exceed the height
               }}
-            ></Box>
+            >
+              {/* Render each message */}
+              {mockMessages.map((message) => (
+                <Message
+                  key={message.id}
+                  content={message.content}
+                  timestamp={message.timestamp}
+                  isOwnMessage={message.isOwnMessage}
+                />
+              ))}
+            </Box>
           </Box>
         </Grid>
       </Grid>

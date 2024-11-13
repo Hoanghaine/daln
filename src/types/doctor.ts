@@ -1,22 +1,31 @@
 export interface IDoctor {
   id: number
-  username: string
-  email: string
   name: string
-  phone: string
+  email: string
   address: string
+  phone: string
   dob: string
-  degree: string
-  specialization: string
-  listCertificates: string[]
-  experience: string
-  imageUrl: string
+  role: string
+  avatar: string
+  createdDate: string
+  lastModifiedDate: string
+  certificates: string[]
+specialization: string
   about: string
-  status: string 
-  rating: number
+  degree: string
+  avgRating: number
+  experience: string
+  status: string
 }
-
-export interface IDoctorResponse {
+export interface IDoctorDetailResponse {
   data: IDoctor
   message: string
+}
+
+export interface IDoctorsBasicInfor {
+  id: number
+  name: string
+  avatar: string
+  specialization: string
+  avgRating: number
 }

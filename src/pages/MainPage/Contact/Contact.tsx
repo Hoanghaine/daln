@@ -71,6 +71,10 @@ const StyledBox = ({ icon, title, content }: StyledBoxProps) => (
   </Box>
 )
 export default function Contact() {
+  console.log()
+
+
+
   return (
     <Box p={1}>
       <Typography variant='h4' color='#3C5EAB' textAlign={'center'} mb={2}>

@@ -4,6 +4,9 @@ import CalendarTodayIcon from '@mui/icons-material/CalendarToday'
 import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined'
 import FavoriteBorderOutlinedIcon from '@mui/icons-material/FavoriteBorderOutlined'
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined'
+import { useParams } from 'react-router-dom'
+import { useGetPostDetailQuery } from '../../../redux/api/api.caller'
+import LazyLoading from '../../../components/LazyLoading'
 
 const relatedPosts = [
   {
@@ -30,6 +33,20 @@ const post = {
 }
 
 const DetailPost = () => {
+  const { id } = useParams<{ id: string }>()
+  const postId = id ? parseInt(id) : 0
+  console.log(postId)
+  const { data: postData, isLoading, isError } = useGetPostDetailQuery(postId)
+  if (isLoading) return <LazyLoading />
+  if (isError) {
+    return (
+      <Typography variant='h6' color='error'>
+        Error fetching data or no data available.
+      </Typography>
+    )
+  }
+  const post = postData.data
+  console.log(post)
   return (
     <Box
       sx={{
