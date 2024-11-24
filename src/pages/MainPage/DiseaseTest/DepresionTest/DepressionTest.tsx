@@ -7,7 +7,10 @@ import SuggestDoctors from '../../../../components/mainPage/SuggestDoctors'
 import AutorenewIcon from '@mui/icons-material/Autorenew'
 
 import { IQuiz } from '../../../../types/quiz'
-import { useGetQuizzesQuery, useSubmitQuizzesMutation } from '../../../../redux/api/api.caller'
+import {
+  useGetQuizzesQuery,
+  useSubmitQuizzesMutation,
+} from '../../../../redux/api/api.caller'
 
 const Introduction = ({ onNext }: { onNext: () => void }) => {
   return (
@@ -74,7 +77,17 @@ const Introduction = ({ onNext }: { onNext: () => void }) => {
   )
 }
 
-const Question = ({ id, question, choice, onAnswer }: { id: number, question: string, choice: string[], onAnswer: (id: number, choiced: string) => void }) => {
+const Question = ({
+  id,
+  question,
+  choice,
+  onAnswer,
+}: {
+  id: number
+  question: string
+  choice: string[]
+  onAnswer: (id: number, choiced: string) => void
+}) => {
   return (
     <Box
       sx={{
@@ -101,7 +114,7 @@ const Question = ({ id, question, choice, onAnswer }: { id: number, question: st
             color='primary'
             sx={{ margin: '8px' }}
             key={index}
-            onClick={() => onAnswer(id,choice)}
+            onClick={() => onAnswer(id, choice)}
           >
             {choice}
           </Button>
@@ -126,19 +139,20 @@ const getDepressionLevel = (score: number) => {
 export default function DepressionTest() {
   const [step, setStep] = React.useState(0)
 
-  const [hasSubmitted, setHasSubmitted] = React.useState(false);
-  const [answers, setAnswers] = React.useState<{ quizId: number; answer: string }[]>([])
+  const [hasSubmitted, setHasSubmitted] = React.useState(false)
+  const [answers, setAnswers] = React.useState<
+    { quizId: number; answer: string }[]
+  >([])
 
-  const { data: response, isLoading } = useGetQuizzesQuery();
-  const [submitQuizzes] = useSubmitQuizzesMutation();
+  const { data: response, isLoading } = useGetQuizzesQuery()
+  const [submitQuizzes] = useSubmitQuizzesMutation()
 
   const listQuiz: IQuiz[] = response?.data || []
 
   const handleAnswer = (id: number, choiced: string) => {
     setAnswers(prevAnswers => [...prevAnswers, { quizId: id, answer: choiced }])
 
-    handleNextStep()  
-
+    handleNextStep()
   }
 
   const handleNextStep = () => {
@@ -155,8 +169,6 @@ export default function DepressionTest() {
     return `${(score / 10) * 100}%`
   }
 
-
-
   const handleSubmit = async () => {
     const iQuizSubmit = [...answers]
     try {
@@ -167,17 +179,21 @@ export default function DepressionTest() {
     }
   }
   React.useEffect(() => {
-    if (listQuiz.length !== 0 && answers.length === listQuiz.length && !hasSubmitted) {
-      handleSubmit();
-      setHasSubmitted(true); // Set to true to prevent multiple submissions
-      console.log('under submit');
+    if (
+      listQuiz.length !== 0 &&
+      answers.length === listQuiz.length &&
+      !hasSubmitted
+    ) {
+      handleSubmit()
+      setHasSubmitted(true) // Set to true to prevent multiple submissions
+      console.log('under submit')
     }
-  }, [answers, listQuiz, hasSubmitted]); 
+  }, [answers, listQuiz, hasSubmitted])
 
   if (isLoading) {
-    return <div>Loading...</div>; 
+    return <div>Loading...</div>
   }
-  
+
   return (
     <Box
       sx={{
@@ -187,22 +203,21 @@ export default function DepressionTest() {
 
         justifyContent: 'center',
         backgroundColor: '#f0f0f0',
-        height: step > 3 ? 'fit-content' : '600px',
+        height: step === listQuiz.length + 1 ? 'fit-content' : '600px',
 
         padding: '30px',
       }}
     >
       {step === 0 && <Introduction onNext={handleNextStep} />}
       {step > 0 && step <= listQuiz.length && (
-          <Question
-            id={listQuiz[step - 1]?.id || 0}
-            question={listQuiz[step - 1]?.question || ''}
-            choice={listQuiz[step - 1]?.choice || []}
-            onAnswer={handleAnswer}
-          />
+        <Question
+          id={listQuiz[step - 1]?.id || 0}
+          question={listQuiz[step - 1]?.question || ''}
+          choice={listQuiz[step - 1]?.choice || []}
+          onAnswer={handleAnswer}
+        />
       )}
       {step > listQuiz?.length && (
-        
         <Box>
           <Box
             sx={{

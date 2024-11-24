@@ -5,11 +5,9 @@ export interface IPost {
   createdAt: string;
   content: string;
   tag: string;
+  liked: boolean;
   totalComment: number;
   totalLikes: number;
   avatar: string;
   thumbnail: string;
 }
-
-
-

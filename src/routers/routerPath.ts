@@ -21,6 +21,15 @@ export const routes = [
         ),
       },
       {
+        label: 'Profile',
+        path: ROUTE_PATH.ROOT.PERSONAL,
+        exact: true,
+
+        component: React.lazy(
+          () => import('../pages/MainPage/Personal/Personal.tsx'),
+        ),
+      },
+      {
         label: 'Disease Test',
         path: ROUTE_PATH.ROOT.TEST,
         exact: true,
@@ -47,7 +56,7 @@ export const routes = [
         exact: true,
 
         component: React.lazy(
-          () => import('../pages/MainPage/Register/Register.tsx'),
+          () => import('../pages/MainPage/Auth/Register/Register.tsx'),
         ),
       },
       {
@@ -138,26 +147,23 @@ export const routes = [
     label: 'Login',
     layout: BlankLayout,
     path: ROUTE_PATH.ROOT.LOGIN,
-    component: React.lazy(() => import('../pages/MainPage/Login/Login.tsx')),
+    component: React.lazy(
+      () => import('../pages/MainPage/Auth/Login/Login.tsx'),
+    ),
   },
-  // {
-  //   label: 'Doctor',
-  //   path: ROUTE_PATH.DOCTOR.INDEX,
-  //   layout: BlankLayout,
-  //   component: React.lazy(() => import('../pages/MainPage/Login/Login.tsx')),
-  //   exact: true,
-  // },
   {
-    label: 'Doctor Dashboard',
-    path: ROUTE_PATH.DOCTOR.INDEX,
+    label: 'Doctor Page',
     layout: ProtectedLayout,
+    exact: true,
+
     children: [
       {
-        label: 'Doctor list',
-        path: ROUTE_PATH.DOCTOR.DASHBOARD,
+        label: 'Doctor Dashboard',
+        path: ROUTE_PATH.DOCTOR.INDEX,
         component: React.lazy(
           () => import('../pages/Doctor/Dashboard/Dashboard'),
         ),
+        exact: true,
       },
       {
         label: 'Schedule management',
@@ -165,6 +171,7 @@ export const routes = [
         component: React.lazy(
           () => import('../pages/Doctor/Schedule/Schedule'),
         ),
+        exact: true,
       },
 
       {
@@ -173,6 +180,7 @@ export const routes = [
         component: React.lazy(
           () => import('../pages/Doctor/Treatment/Treatment.tsx'),
         ),
+        exact: true,
       },
       {
         label: 'Treatment detail',
@@ -180,6 +188,7 @@ export const routes = [
         component: React.lazy(
           () => import('../pages/Doctor/Treatment/TreatmentDetail.tsx'),
         ),
+        exact: true,
       },
       {
         label: 'Profile',
@@ -187,6 +196,7 @@ export const routes = [
         component: React.lazy(
           () => import('../pages/Doctor/Profile/Profile.tsx'),
         ),
+        exact: true,
       },
       {
         label: 'Post management',
@@ -194,12 +204,13 @@ export const routes = [
         component: React.lazy(
           () => import('../pages/Doctor/PostManagement/PostManagement.tsx'),
         ),
+        exact: true,
       },
     ],
   },
   {
     label: 'Admin',
-    path: ROUTE_PATH.ADMIN.INDEX,
+    path: ROUTE_PATH.ADMIN.LOGIN,
     layout: BlankLayout,
     component: React.lazy(() => import('../pages/Admin/Login/Login')),
     exact: true,
@@ -211,7 +222,7 @@ export const routes = [
     children: [
       {
         label: 'Admin list',
-        path: ROUTE_PATH.ADMIN.DASHBOARD,
+        path: ROUTE_PATH.ADMIN.INDEX,
         component: React.lazy(
           () => import('../pages/Admin/Dashboard/Dashboard'),
         ),

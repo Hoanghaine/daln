@@ -1,18 +1,17 @@
-import { ITag } from './../../types/tag'
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { createApi } from '@reduxjs/toolkit/query/react'
 import customBaseQuery from './fetchBase'
 import { IQuizAnswer, IQuizResponse } from '../../types/quiz'
-import { IDoctor, IDoctorDetailResponse } from '../../types/doctor'
-import { Ipatient } from '../../types/patient'
+import { IDoctorDetailResponse } from '../../types/doctor'
+import { IPatientDetailResponse } from '../../types/patient'
 
 import {
-  IDoctorsResponse,
   IPostsResponse,
   IUsersResponse,
   IDoctorsBasicInforResponse,
+  ITagsResponse,
+  ICommentsResponse,
 } from '../../types/paginatedResponse'
-import { register } from 'module'
 import { IUserRegister } from '../../types/user'
 
 export const apiCaller = createApi({
@@ -35,6 +34,13 @@ export const apiCaller = createApi({
         body: user,
       }),
     }),
+    forgotPassword: builder.mutation({
+      query: () => ({
+        url: '/auth/forgot-password',
+        method: 'POST',
+      }),
+    }),
+
     getQuizzes: builder.query<IQuizResponse, void>({
       query: () => ({
         url: `/quizzes`,
@@ -56,8 +62,15 @@ export const apiCaller = createApi({
       }),
       providesTags: ['Posts'], // To manage cache invalidation
     }),
+    getOwnPosts: builder.query<IPostsResponse, { page: number; size: number }>({
+      query: ({ page, size }) => ({
+        url: `/posts/user?page=${page}&size=${size}`,
+        method: 'GET',
+      }),
+      providesTags: ['Posts'], // To manage cache invalidation
+    }),
     getPostDetail: builder.query({
-      query: (postId: number) => `/posts/details/${postId}`,
+      query: (postId: number) => `/posts/${postId}`,
     }),
     addPost: builder.mutation({
       query: ({ title, content, tagId, image }) => {
@@ -81,13 +94,25 @@ export const apiCaller = createApi({
         method: 'GET',
       }),
     }),
+    getDoctorProfile: builder.query<IDoctorDetailResponse, void>({
+      query: () => ({
+        url: `/users/profile`,
+        method: 'GET',
+      }),
+    }),
+    getPatientProfile: builder.query<IPatientDetailResponse, void>({
+      query: () => ({
+        url: `/users/profile`,
+        method: 'GET',
+      }),
+    }),
     getDoctorDetail: builder.query<IDoctorDetailResponse, number>({
       query: id => ({
         url: `/users/${id}`,
         method: 'GET',
       }),
     }),
-    getPatientDetail: builder.query<Ipatient, number>({
+    getPatientDetail: builder.query<IPatientDetailResponse, number>({
       query: id => ({
         url: `/users/${id}`,
         method: 'GET',
@@ -118,6 +143,56 @@ export const apiCaller = createApi({
         }
       },
     }),
+    getCommentsPost: builder.query({
+      query: (postId: number) => `/comments/${postId}`,
+    }),
+    deletePost: builder.mutation({
+      query: postId => ({
+        url: `/posts/${postId}`,
+        method: 'DELETE',
+      }),
+    }),
+    getTags: builder.query<ITagsResponse, void>({
+      query: () => ({
+        url: '/tags?page=0&size=10',
+        method: 'GET',
+      }),
+    }),
+    getChat: builder.query({
+      query: (receiverName: string) => `/chats/${receiverName}`,
+    }),
+    getChatList: builder.query({
+      query: () => '/chats/categories', // Your endpoint
+    }),
+    approveDoctor: builder.mutation({
+      query: (doctorId: number) => ({
+        url: `/auth/approve/${doctorId}`,
+        method: 'PUT',
+      }),
+    }),
+    likePost: builder.mutation({
+      query: postId => ({
+        url: `/posts/like/${postId}`,
+        method: 'PUT',
+      }),
+    }),
+    unLikePost: builder.mutation({
+      query: postId => ({
+        url: `/posts/unlike/${postId}`,
+        method: 'PUT',
+      }),
+    }),
+    getPostComments: builder.query<ICommentsResponse, number>({
+      query: postId => `/comments/${postId}`,
+    }),
+
+    commentPost: builder.mutation({
+      query: ({ postId, content }) => ({
+        url: `/comments`,
+        method: 'POST',
+        body: { postId, content },
+      }),
+    }),
   }),
 })
 
@@ -126,15 +201,28 @@ export const {
   useLoginMutation,
   useGetQuizzesQuery,
   useGetPostsQuery,
+  useGetOwnPostsQuery,
   useGetPostDetailQuery,
   useAddPostMutation,
   useGetAccountsQuery,
   useGetDoctorDetailQuery,
+  useGetDoctorProfileQuery,
+  useGetPatientProfileQuery,
   useGetPatientDetailQuery,
   useGetDoctorsBasicInforQuery,
   useRegisterMutation,
   useGetDoctorCommentsQuery,
   useGetSpecializationsQuery,
-  useLazyGetDoctorsBasicInforQuery, // Lazy query for all doctors
-  
+  useLazyGetDoctorsBasicInforQuery,
+  useGetCommentsPostQuery,
+  useDeletePostMutation,
+  useGetTagsQuery,
+  useGetChatListQuery,
+  useGetChatQuery,
+  useForgotPasswordMutation,
+  useApproveDoctorMutation,
+  useLikePostMutation,
+  useUnLikePostMutation,
+  useGetPostCommentsQuery,
+  useCommentPostMutation,
 } = apiCaller

@@ -7,7 +7,7 @@ function NewsSection() {
       container
       sx={{
         maxWidth: '1152px',
-        padding: '16px 0',
+        padding: '30px 0',
         gap: '20px',
         backgroundColor: '#fff',
         margin: '0px auto',
@@ -19,89 +19,107 @@ function NewsSection() {
         <Typography variant='h4' color='initial' textAlign={'center'} mb={2}>
           Tin tức và sự kiện
         </Typography>
-        <Box>
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'row',
+            gap: '20px',
+            justifyContent: 'center',
+            alignItems: 'flex-start',
+            width: '100%',
+          }}
+        >
           <Box
             sx={{
               display: 'flex',
-              flexDirection: { xs: 'column', sm: 'row' },
+              flexDirection: 'column',
               gap: 2,
-              mb: 2,
+              flex: 1,
             }}
           >
             <Box
               component={'img'}
               src={imgTriLieu}
-              sx={{ width: '50%', height: '300px', objectFit: 'cover' }}
+              sx={{
+                width: '100%',
+                height: '300px',
+                objectFit: 'cover',
+                borderRadius: '8px',
+              }}
             ></Box>
             <Box>
-              <Typography variant='h5' color='initial'>
+              <Typography variant='h6' color='initial'>
                 Tham vấn và Trị liệu tâm lý
               </Typography>
-              <Typography variant='body2' color='initial'>
+              <Typography variant='body1' color='initial'>
                 Thực hiện tham vấn, tư vấn tâm lý trực tiếp, trực tuyến cho học
-                sinh, cặp đôi, gia đình…
+                sinh, cặp đôi, gia đình,..
               </Typography>
               <Button variant='outlined'>Xem chi tiết</Button>
             </Box>
           </Box>
           <Stack
             sx={{
-              display: 'grid',
-              gridTemplateColumns: {
-                xs: '1fr',
-                sm: '1fr 1fr',
-                md: '1fr 1fr 1fr',
-              },
-              gap: 2,
+              width: '50%',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '16px',
+              justifyContent: 'center',
+              alignItems: 'center',
             }}
           >
-            <Box>
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: { xs: 'column', sm: 'row' },
+                gap: 2,
+              }}
+            >
               <Box
                 component={'img'}
                 src={imgTriLieu}
-                sx={{ width: '100%', height: '200px', objectFit: 'cover' }}
+                sx={{
+                  width: '100%',
+                  height: '150px',
+                  objectFit: 'cover',
+                  borderRadius: '8px',
+                }}
               ></Box>
               <Box>
-                <Typography variant='h5' color='initial'>
+                <Typography variant='h6' color='initial'>
                   Tham vấn và Trị liệu tâm lý
                 </Typography>
                 <Typography variant='body2' color='initial'>
                   Thực hiện tham vấn, tư vấn tâm lý trực tiếp, trực tuyến cho
-                  học sinh, cặp đôi, gia đình…
+                  học sinh, cặp đôi, gia đình
                 </Typography>
                 <Button variant='outlined'>Xem chi tiết</Button>
               </Box>
             </Box>
-            <Box>
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: { xs: 'column', sm: 'row' },
+                gap: 2,
+              }}
+            >
               <Box
                 component={'img'}
                 src={imgTriLieu}
-                sx={{ width: '100%', height: '200px', objectFit: 'cover' }}
+                sx={{
+                  width: '100%',
+                  height: '150px',
+                  objectFit: 'cover',
+                  borderRadius: '8px',
+                }}
               ></Box>
               <Box>
-                <Typography variant='h5' color='initial'>
+                <Typography variant='h6' color='initial'>
                   Tham vấn và Trị liệu tâm lý
                 </Typography>
                 <Typography variant='body2' color='initial'>
                   Thực hiện tham vấn, tư vấn tâm lý trực tiếp, trực tuyến cho
-                  học sinh, cặp đôi, gia đình…
-                </Typography>
-                <Button variant='outlined'>Xem chi tiết</Button>
-              </Box>
-            </Box>
-            <Box>
-              <Box
-                component={'img'}
-                src={imgTriLieu}
-                sx={{ width: '100%', height: '200px', objectFit: 'cover' }}
-              ></Box>
-              <Box>
-                <Typography variant='h5' color='initial'>
-                  Tham vấn và Trị liệu tâm lý
-                </Typography>
-                <Typography variant='body2' color='initial'>
-                  Thực hiện tham vấn, tư vấn tâm lý trực tiếp, trực tuyến cho
-                  học sinh, cặp đôi, gia đình…
+                  học sinh, cặp đôi, gia đình
                 </Typography>
                 <Button variant='outlined'>Xem chi tiết</Button>
               </Box>

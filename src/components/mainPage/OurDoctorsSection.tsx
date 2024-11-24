@@ -1,4 +1,4 @@
-import { Box, Typography, Stack } from '@mui/material'
+import { Box, Typography, Stack, Button } from '@mui/material'
 import Grid from '@mui/material/Grid2'
 
 function OurDoctorsSection() {
@@ -30,16 +30,17 @@ function OurDoctorsSection() {
                 flexDirection: 'row',
                 justifyContent: 'space-between',
                 gap: '20px',
-                margin:'0 auto',
-                mb: 2,
+                margin: '0 auto',
+                mb: 3,
               }}
             >
               <Box
                 component={'img'}
-                src='https://braincare.vn/wp-content/uploads/bac-si-dung.jpg'
+                src='https://braincare.vn/wp-content/uploads/nguyen-thi-tham.jpg'
                 sx={{
                   width: '40%',
-                  height: '400px',
+                  height: '350px',
+                  borderRadius: '8px',
                   objectFit: 'cover',
                   flexShrink: 0,
                 }}
@@ -62,6 +63,9 @@ function OurDoctorsSection() {
                   tâm thần, các rối loạn phát triển ở trẻ em, cai nghiện game,
                   Internet, rượu tại Viện sức khỏe tâm thần-Bệnh viện Bạch Mai
                 </Typography>
+                <Button variant='contained' sx={{ width: 'fit-content' }}>
+                  Xem chi tiết
+                </Button>
               </Box>
             </Box>
             <Stack
@@ -72,33 +76,58 @@ function OurDoctorsSection() {
               <Box
                 component={'img'}
                 src='https://braincare.vn/wp-content/uploads/bac-si-dung.jpg'
-                sx={{ width: '200px', objectFit: 'cover', flexShrink: 0 }}
+                sx={{
+                  width: '200px',
+                  objectFit: 'cover',
+                  flexShrink: 0,
+                  borderRadius: '8px',
+                }}
               ></Box>
               <Box
                 component={'img'}
-                src='https://braincare.vn/wp-content/uploads/bac-si-dung.jpg'
-                sx={{ width: '200px', objectFit: 'cover', flexShrink: 0 }}
+                src='https://braincare.vn/wp-content/uploads/pham-van-tu.jpg'
+                sx={{
+                  width: '200px',
+                  objectFit: 'cover',
+                  flexShrink: 0,
+                  borderRadius: '8px',
+                }}
               ></Box>
               <Box
                 component={'img'}
-                src='https://braincare.vn/wp-content/uploads/bac-si-dung.jpg'
-                sx={{ width: '200px', objectFit: 'cover', flexShrink: 0 }}
+                src='https://braincare.vn/wp-content/uploads/nguyen-minh-phuong.jpg'
+                sx={{
+                  width: '200px',
+                  objectFit: 'cover',
+                  flexShrink: 0,
+                  borderRadius: '8px',
+                }}
               ></Box>
               <Box
                 component={'img'}
-                src='https://braincare.vn/wp-content/uploads/bac-si-dung.jpg'
-                sx={{ width: '200px', objectFit: 'cover', flexShrink: 0 }}
+                src='https://braincare.vn/wp-content/uploads/vu-thi-oanh.jpg'
+                sx={{
+                  width: '200px',
+                  objectFit: 'cover',
+                  flexShrink: 0,
+                  borderRadius: '8px',
+                }}
               ></Box>
               <Box
                 component={'img'}
-                src='https://braincare.vn/wp-content/uploads/bac-si-dung.jpg'
-                sx={{ width: '200px', objectFit: 'cover', flexShrink: 0 }}
+                src='https://braincare.vn/wp-content/uploads/nguyen-thi-tham.jpg'
+                sx={{
+                  width: '200px',
+                  objectFit: 'cover',
+                  flexShrink: 0,
+                  borderRadius: '8px',
+                }}
               ></Box>
             </Stack>
           </Stack>
         </Box>
       </Grid>
-    </Box>  
+    </Box>
   )
 }
 

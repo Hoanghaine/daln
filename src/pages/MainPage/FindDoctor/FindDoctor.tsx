@@ -62,6 +62,9 @@ const DoctorCard = ({
           boxShadow: '0px 0px 8px 0px rgba(0,0,0,0.2)',
         },
       }}
+      onClick={() => {
+        window.location.href = `/find-doctor/${id}`
+      }}
     >
       <Box
         component={'img'}
@@ -69,8 +72,9 @@ const DoctorCard = ({
         alt={name}
         sx={{
           width: '100%',
-          height: 'auto',
+          height: '250px',
           borderRadius: '8px',
+          objectFit: 'cover',
         }}
       />
       <Box
@@ -80,7 +84,7 @@ const DoctorCard = ({
           alignItems: 'center',
         }}
       >
-        <Typography variant='body1' color={'#65AD45'} sx={{ m: 0 }}>
+        <Typography variant='h6' color={'#65AD45'} sx={{ marginTop: '10px' }}>
           {name}
         </Typography>
         <Typography variant='body2'>Chuyên môn: {specialization}</Typography>
@@ -109,6 +113,7 @@ const DoctorCard = ({
             backgroundColor: '#65AD45',
             color: '#fff',
             borderRadius: '16px',
+            marginTop: '10px',
             '&:hover': {
               backgroundColor: '#3C5EAB',
             },
@@ -151,6 +156,7 @@ const TopDoctorCard = ({
           width: '70px',
           height: '70px',
           borderRadius: '8px',
+          objectFit: 'cover',
         }}
       />
       <Box>
@@ -169,6 +175,9 @@ function FindDoctor() {
   const [page, setPage] = useState<number>(0)
   const [doctors, setDoctors] = useState<IDoctorsBasicInfor[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [selectedSpecialization, setSelectedSpecialization] = useState<
+    string | null
+  >(null)
 
   // Lazy queries for the two API calls
   const [triggerGetDoctors, { isLoading: isGetDoctorsLoading }] =
@@ -194,7 +203,6 @@ function FindDoctor() {
   }
 
   const fetchDoctorsBySpecialization = async (specialization: string) => {
-    console.log('fetchDoctorsBySpecialization')
     setIsLoading(true)
     const { data, error } = await triggerGetDoctors({
       page,
@@ -217,8 +225,8 @@ function FindDoctor() {
     specialization: string | null,
   ) => {
     event.preventDefault()
-    console.log('Button clicked, specialization:', specialization)
     setPage(0) // Reset page to 0 on specialization change
+    setSelectedSpecialization(specialization)
     if (specialization) {
       await fetchDoctorsBySpecialization(specialization)
     } else {
@@ -362,6 +370,7 @@ function FindDoctor() {
               gap: '8px',
               width: '100%',
               mt: 1,
+              mb: 1,
               justifyContent: 'flex-start',
             }}
           >
@@ -369,7 +378,9 @@ function FindDoctor() {
               Lọc bác sĩ:
             </Typography>
             <Button
-              variant='outlined'
+              variant={
+                selectedSpecialization === null ? 'contained' : 'outlined'
+              }
               onClick={event => handleSpecializationChange(event, null)}
             >
               Tất cả
@@ -378,7 +389,11 @@ function FindDoctor() {
               (specialization: string) => (
                 <Button
                   key={specialization}
-                  variant='outlined'
+                  variant={
+                    selectedSpecialization === specialization
+                      ? 'contained'
+                      : 'outlined'
+                  }
                   onClick={event =>
                     handleSpecializationChange(event, specialization)
                   }

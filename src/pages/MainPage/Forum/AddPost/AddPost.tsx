@@ -1,11 +1,28 @@
 import { useState } from 'react'
-import { Box, Button, TextField, Typography, Stack } from '@mui/material'
+import {
+  Box,
+  Button,
+  TextField,
+  Typography,
+  Stack,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+} from '@mui/material'
 import { useNavigate } from 'react-router-dom'
-import { useAddPostMutation } from '../../../../redux/api/api.caller'
+import {
+  useAddPostMutation,
+  useGetTagsQuery,
+} from '../../../../redux/api/api.caller'
+
 import CloudUploadIcon from '@mui/icons-material/CloudUpload'
-import CustomizedMenu from './CustomizedMenu'
 import useStyles from './AddPost.style'
-import Textarea from '@mui/joy/Textarea'
+import 'quill/dist/quill.snow.css' // Or another Quill theme if preferred
+import Quill from 'quill'
+
+import { useEffect, useRef } from 'react'
+
 export default function AddPost({
   onAddPostSuccess,
 }: {
@@ -16,9 +33,15 @@ export default function AddPost({
   const [tagId, setTagId] = useState<number>(0)
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState<string>('')
-
+  const quillRef = useRef<HTMLDivElement | null>(null) // Ref for Quill container
+  const quillInstance = useRef<any>(null) // Store Quill instance
   const [addPost, { isLoading, isSuccess }] = useAddPostMutation()
-  const navigate = useNavigate()
+
+  const {
+    data: tagsData,
+    isLoading: isTagsLoading,
+    isError,
+  } = useGetTagsQuery()
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] // Get the new file
@@ -40,9 +63,10 @@ export default function AddPost({
     }
 
     try {
+      const quillContent = quillInstance.current?.root.innerHTML
       const response = await addPost({
         title,
-        content,
+        content: quillContent,
         tagId,
         image: imageFile,
       }).unwrap()
@@ -53,12 +77,30 @@ export default function AddPost({
       console.error('Failed to add post:', error)
     }
   }
-  const handleRemoveImage = () => {
-    setImageFile(null)
-    setImagePreview('') // Clear image preview when user wants to choose again
-  }
 
   const classes = useStyles()
+  useEffect(() => {
+    if (quillRef.current) {
+      quillInstance.current = new Quill(quillRef.current, {
+        theme: 'snow',
+        placeholder: 'Viết nội dung bài viết...',
+        modules: {
+          toolbar: [
+            [{ header: [1, 2, false] }],
+            ['bold', 'italic', 'underline'],
+            [{ list: 'ordered' }, { list: 'bullet' }],
+            ['link', 'image'],
+            ['clean'],
+          ],
+        },
+      })
+
+      // Set the default content if needed
+      quillInstance.current.on('text-change', () => {
+        setContent(quillInstance.current.root.innerHTML) // Set content state
+      })
+    }
+  }, [])
   return (
     <Box
       sx={{
@@ -77,17 +119,27 @@ export default function AddPost({
             required
             fullWidth
           />
-          <Textarea
-            placeholder='Viết nội dung bài viết...'
-            value={content}
-            onChange={e => setContent(e.target.value)}
-            required
-            minRows={2}
-            maxRows={6}
-          />
 
-          <CustomizedMenu setTagId={setTagId} />
-
+          <Box>
+            <div ref={quillRef} style={{ height: '200px' }} />
+          </Box>
+          <FormControl fullWidth>
+            <InputLabel id='tag-select-label'>Chọn tag</InputLabel>
+            <Select
+              labelId='tag-select-label'
+              id='tag-select'
+              value={tagId}
+              label='Chọn tag'
+              onChange={e => setTagId(Number(e.target.value))}
+              required
+            >
+              {tagsData?.data.elements.map((tag: any) => (
+                <MenuItem key={tag.id} value={tag.id}>
+                  {tag.tagName}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
           <div className={classes.imageSection}>
             <input
               accept='image/*'

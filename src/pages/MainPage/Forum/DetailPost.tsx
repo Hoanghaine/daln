@@ -1,13 +1,30 @@
-import { Box, Typography, Stack, Divider } from '@mui/material'
+import {
+  Box,
+  Typography,
+  Stack,
+  Divider,
+  Avatar,
+  Button,
+  TextField,
+} from '@mui/material'
 import Grid from '@mui/material/Grid2'
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday'
 import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined'
 import FavoriteBorderOutlinedIcon from '@mui/icons-material/FavoriteBorderOutlined'
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined'
+import FavoriteSharpIcon from '@mui/icons-material/FavoriteSharp'
 import { useParams } from 'react-router-dom'
-import { useGetPostDetailQuery } from '../../../redux/api/api.caller'
+import { useMemo, useEffect, useState } from 'react'
+import {
+  useGetPostDetailQuery,
+  useGetPostCommentsQuery,
+  useCommentPostMutation,
+  useLikePostMutation,
+  useUnLikePostMutation,
+} from '../../../redux/api/api.caller'
 import LazyLoading from '../../../components/LazyLoading'
-
+import styled from '@mui/system/styled'
+import { get } from 'http'
 const relatedPosts = [
   {
     title: 'Bài viết liên quan 1',
@@ -20,33 +37,85 @@ const relatedPosts = [
     img: 'https://plus.unsplash.com/premium_photo-1663840243136-825f46d64881?w=600&auto=format&fit=crop&q=60',
   },
 ]
-
-const post = {
-  title: 'Tiêu đề chi tiết bài viết',
-  content:
-    'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla interdum ligula libero, sit amet tincidunt ex condimentum id. Nam non lorem odio. Proin ut est ligula. Ut id lacus vel felis sodales bibendum. Suspendisse auctor neque in malesuada aliquam. Praesent vel felis dolor. Integer convallis dictum risus, et malesuada neque. Phasellus varius felis sit amet dui vulputate, vel luctus nisl fermentum.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla interdum ligula libero, sit amet tincidunt ex condimentum id. Nam non lorem odio. Proin ut est ligula. Ut id lacus vel felis sodales bibendum. Suspendisse auctor neque in malesuada aliquam. Praesent vel felis dolor. Integer convallis dictum risus, et malesuada neque. Phasellus varius felis sit amet dui vulputate, vel luctus nisl fermentum.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla interdum ligula libero, sit amet tincidunt ex condimentum id. Nam non lorem odio. Proin ut est ligula. Ut id lacus vel felis sodales bibendum. Suspendisse auctor neque in malesuada aliquam. Praesent vel felis dolor. Integer convallis dictum risus, et malesuada neque. Phasellus varius felis sit amet dui vulputate, vel luctus nisl fermentum',
-  img: 'https://plus.unsplash.com/premium_photo-1663840243136-825f46d64881?w=600&auto=format&fit=crop&q=60',
-  time: '2024-10-31',
-  author: 'Dr Hai',
-  view: 100,
-  like: 50,
-}
-
+const CommentBox = styled(TextField)(() => ({
+  '& fieldset': {
+    borderRadius: '16px',
+  },
+}))
 const DetailPost = () => {
   const { id } = useParams<{ id: string }>()
-  const postId = id ? parseInt(id) : 0
-  console.log(postId)
-  const { data: postData, isLoading, isError } = useGetPostDetailQuery(postId)
-  if (isLoading) return <LazyLoading />
-  if (isError) {
+  const postId = useMemo(() => (id ? parseInt(id, 10) : 0), [id])
+  const {
+    data: postData,
+    isLoading: isPostLoading,
+    isError: isPostError,
+    refetch: refetchPost,
+  } = useGetPostDetailQuery(postId)
+  const {
+    data: commentsData,
+    isLoading: isCommentsLoading,
+    refetch: refetchComments,
+  } = useGetPostCommentsQuery(postId)
+  const [likePost, { isLoading: isLiking }] = useLikePostMutation()
+  const [unLikePost, { isLoading: isUnliking }] = useUnLikePostMutation()
+  const [commentPost, { isLoading: isCommenting }] = useCommentPostMutation()
+  const [newComment, setNewComment] = useState('')
+  const [userAvatar, setUserAvatar] = useState<string | null>(null)
+  useEffect(() => {
+    console.log('DetailPost re-rendered')
+    // Lấy thông tin người dùng từ localStorage khi trang tải
+    const storedUserInfo = localStorage.getItem('userInfo')
+    if (storedUserInfo) {
+      const avatar = JSON.parse(storedUserInfo).avatar
+      setUserAvatar(avatar)
+    }
+  }, [])
+  const post = postData?.data
+  const comments = commentsData?.data?.elements || []
+
+  if (isPostLoading || isCommentsLoading) {
+    return <LazyLoading />
+  }
+  if (isPostError) {
     return (
       <Typography variant='h6' color='error'>
-        Error fetching data or no data available.
+        Error fetching post or no data available.
       </Typography>
     )
   }
-  const post = postData.data
-  console.log(post)
+  const handleLikePost = async (postId: number) => {
+    console.log('like post id:', postId)
+    try {
+      const response = await likePost(postId).unwrap()
+      console.log('like post response:', response)
+      refetchPost()
+    } catch (error) {
+      console.error('Failed to like the post:', error)
+    }
+  }
+
+  const handleUnlikePost = async (postId: number) => {
+    console.log('unlike post id:', postId)
+    try {
+      const response = await unLikePost(postId).unwrap()
+      console.log('unlike post response:', response)
+      refetchPost()
+      // Optionally, refetch or optimistically update local state here
+    } catch (error) {
+      console.error('Failed to unlike the post:', error)
+    }
+  }
+  const handleCommentSubmit = async () => {
+    if (!newComment.trim()) return
+    try {
+      await commentPost({ postId, content: newComment }).unwrap()
+      setNewComment('')
+      refetchComments()
+    } catch (error) {
+      console.error('Failed to post comment:', error)
+    }
+  }
+
   return (
     <Box
       sx={{
@@ -76,7 +145,7 @@ const DetailPost = () => {
           >
             <Box
               component='img'
-              src={post.img}
+              src={post.thumbnail}
               alt={post.title}
               sx={{
                 width: '100%',
@@ -85,9 +154,6 @@ const DetailPost = () => {
               }}
             />
             <Box sx={{ padding: '24px' }}>
-              <Typography variant='h4' sx={{ marginBottom: '16px' }}>
-                {post.title}
-              </Typography>
               <Stack
                 direction='row'
                 spacing={3}
@@ -100,35 +166,108 @@ const DetailPost = () => {
                 <Typography
                   sx={{ display: 'flex', alignItems: 'center', gap: '4px' }}
                 >
-                  <VisibilityOutlinedIcon style={{ fontSize: '20px' }} />
-                  {post.view}
-                </Typography>
-                <Typography
-                  sx={{ display: 'flex', alignItems: 'center', gap: '4px' }}
-                >
-                  <FavoriteBorderOutlinedIcon style={{ fontSize: '20px' }} />
-                  {post.like}
-                </Typography>
-                <Typography
-                  sx={{ display: 'flex', alignItems: 'center', gap: '4px' }}
-                >
-                  <AccountCircleOutlinedIcon style={{ fontSize: '20px' }} />
+                  <Avatar src={post.authorAvatar}></Avatar>
                   {post.author}
                 </Typography>
                 <Typography
                   sx={{ display: 'flex', alignItems: 'center', gap: '4px' }}
                 >
+                  {post.liked ? (
+                    <FavoriteSharpIcon
+                      onClick={() => handleUnlikePost(post.id)}
+                      style={{ color: '#3C5EAB', fontSize: '20px' }}
+                    />
+                  ) : (
+                    <FavoriteBorderOutlinedIcon
+                      onClick={() => handleLikePost(post.id)}
+                      style={{ color: '#3C5EAB', fontSize: '20px' }}
+                    />
+                  )}
+                  {post.likeCount}
+                </Typography>
+
+                <Typography
+                  sx={{ display: 'flex', alignItems: 'center', gap: '4px' }}
+                >
                   <CalendarTodayIcon style={{ fontSize: '20px' }} />
-                  {post.time}
+                  {post.createdAt}
                 </Typography>
               </Stack>
-              <Divider />
-              <Typography
-                variant='body1'
-                sx={{ marginTop: '16px', lineHeight: '1.8' }}
-              >
-                {post.content}
+              <Typography variant='h5' sx={{ marginBottom: '8px' }}>
+                {post.title}
               </Typography>
+              <Box sx={{}} dangerouslySetInnerHTML={{ __html: post.content }} />
+              <Divider sx={{ margin: '16px 0' }} />
+              <Box
+                sx={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '16px',
+                }}
+              >
+                {isCommentsLoading ? (
+                  <LazyLoading />
+                ) : (
+                  comments.map((comment, index) => (
+                    <Box key={comment.id || index} sx={{}}>
+                      <Stack
+                        direction='row'
+                        spacing={1}
+                        alignItems='flex-start'
+                      >
+                        <Avatar
+                          src={
+                            comment.avatar ||
+                            'https://imgs.search.brave.com/H_NZMJINClnOmtALE4lAcyKp_ICH1MB4hLmLmL2voWg/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9zdHls/ZXMucmVkZGl0bWVk/aWEuY29tL3Q1XzJx/aWZ2L3N0eWxlcy9j/b21tdW5pdHlJY29u/Xzh5NDFwMHowNTh0/YzEucG5n'
+                          }
+                        />
+                        <Box
+                          sx={{
+                            width: '100%',
+                            backgroundColor: '#F0F2F5',
+                            padding: '8px 16px',
+                            borderRadius: '16px',
+                          }}
+                        >
+                          <Typography variant='body1'>
+                            {comment.username || 'Anonymous'}
+                          </Typography>
+                          <Typography variant='body2' color='textSecondary'>
+                            {comment.content}
+                          </Typography>
+                        </Box>
+                      </Stack>
+                    </Box>
+                  ))
+                )}
+                <Stack direction='row' spacing={1} mt={2}>
+                  <Avatar src={userAvatar || ''}></Avatar>
+                  <CommentBox
+                    fullWidth
+                    value={newComment}
+                    onChange={e => setNewComment(e.target.value)}
+                    placeholder='Write a comment...'
+                    disabled={isCommenting}
+                    sx={{
+                      backgroundColor: '#F0F2F5',
+                      borderRadius: '16px',
+                    }}
+                  />
+                  <Button
+                    variant='contained'
+                    onClick={handleCommentSubmit}
+                    disabled={isCommenting}
+                    sx={{
+                      borderRadius: '16px',
+                      padding: '8px 16px',
+                      backgroundColor: '#3C5EAB',
+                      color: '#fff',
+                    }}
+                  >
+                    Post
+                  </Button>
+                </Stack>
+              </Box>
             </Box>
           </Box>
         </Grid>

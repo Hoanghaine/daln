@@ -1,3 +1,4 @@
+import { IComment } from './comment';
 import { ITag } from './tag'
 import { IPost } from './posts'
 import { IDoctor, IDoctorsBasicInfor } from './doctor'
@@ -16,3 +17,4 @@ export type ITagsResponse = IPaginatedResponse<ITag>
 export type IPostsResponse = IPaginatedResponse<IPost>
 export type IDoctorsResponse = IPaginatedResponse<IDoctor>
 export type IDoctorsBasicInforResponse = IPaginatedResponse<IDoctorsBasicInfor>
+export type ICommentsResponse = IPaginatedResponse<IComment>

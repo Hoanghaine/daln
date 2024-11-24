@@ -10,6 +10,7 @@ interface CustomizedMenusProps {
 
 export default function CustomizedMenus({ setRole }: CustomizedMenusProps) {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
+  const [displayRole, setDisplayRole] = React.useState('Chọn vai trò')
   const open = Boolean(anchorEl)
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -17,6 +18,11 @@ export default function CustomizedMenus({ setRole }: CustomizedMenusProps) {
   }
 
   const handleClose = (role: string) => {
+    if (role === 'patient') {
+      setDisplayRole('Khách hàng')
+    } else if (role === 'doctor') {
+      setDisplayRole('Bác sĩ')
+    }
     setAnchorEl(null)
     setRole(role) // Truyền vai trò (role) về cho Login
   }
@@ -33,7 +39,7 @@ export default function CustomizedMenus({ setRole }: CustomizedMenusProps) {
         onClick={handleClick}
         endIcon={<KeyboardArrowDownIcon />}
       >
-        Options
+        {displayRole}
       </Button>
       <Menu
         id='demo-customized-menu'

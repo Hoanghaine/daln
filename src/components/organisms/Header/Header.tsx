@@ -4,14 +4,33 @@ import Divider from '@mui/material/Divider'
 import flag_uk from '../../../assets/Flag_of_the_United_Kingdom.svg'
 import Avatar from '@mui/material/Avatar'
 import styled from '@mui/system/styled'
+import Menu from '@mui/material/Menu'
+import MenuItem from '@mui/material/MenuItem'
 import { useState, useEffect } from 'react'
-
 const StyledIconButton = styled(IconButton)(() => ({
   borderRadius: '10px',
 }))
+import { useNavigate } from 'react-router-dom'
 export default function Header() {
   const [userInfo, setUserInfo] = useState<any>(null)
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
+  const navigate = useNavigate()
+  const handleAvatarClick = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget)
+  }
+  const handleMenuClose = () => {
+    setAnchorEl(null)
+  }
 
+  const handleOptionClick = (path: string) => {
+    navigate(path)
+    handleMenuClose()
+  }
+  const handleLogout = () => {
+    localStorage.removeItem('token')
+    localStorage.removeItem('userInfo')
+    navigate('/login') // Chuyển về trang đăng nhập
+  }
   useEffect(() => {
     // Lấy thông tin người dùng từ localStorage khi trang tải
     const storedUserInfo = localStorage.getItem('userInfo')
@@ -71,11 +90,25 @@ export default function Header() {
         </StyledIconButton>
 
         {userInfo && (
-          <Avatar
-            sx={{ width: '44px', height: '44px' }}
-            style={{ cursor: 'pointer' }}
-            src={userInfo.avatar || ''}
-          ></Avatar>
+          <Box>
+            <Avatar
+              sx={{ width: '44px', height: '44px' }}
+              style={{ cursor: 'pointer' }}
+              src={userInfo.avatar || ''}
+              onClick={handleAvatarClick}
+            ></Avatar>
+            <Menu
+              anchorEl={anchorEl}
+              open={Boolean(anchorEl)}
+              onClose={handleMenuClose}
+            >
+              <MenuItem onClick={() => handleOptionClick('/')}>
+                Trang chủ
+              </MenuItem>
+
+              <MenuItem onClick={handleLogout}>Đăng xuất</MenuItem>
+            </Menu>
+          </Box>
         )}
       </Box>
     </Box>

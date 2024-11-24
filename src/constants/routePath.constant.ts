@@ -1,3 +1,4 @@
+
 export const ROUTE_PATH = {
   ROOT: {
     INDEX: '/',
@@ -17,13 +18,13 @@ export const ROUTE_PATH = {
     NEWS_EVENT: 'news-event',
     CONTACT: 'contact',
     RATE_DOCTOR: 'rate-doctor',
+    PERSONAL: 'personal',
   },
   MESSAGE: {
     INDEX: '/message',
   },
   DOCTOR: {
     INDEX: '/doctor',
-    DASHBOARD: '/doctor/dashboard',
     SCHEDULE: '/doctor/schedule',
     TREATMENT: '/doctor/treatment',
     TREATMENT_DETAIL: '/doctor/treatment/:id',
@@ -32,6 +33,7 @@ export const ROUTE_PATH = {
   },
   ADMIN: {
     INDEX: '/admin',
+    LOGIN: '/admin/login',
     DASHBOARD: '/admin/dashboard',
     POST_MANAGEMENT: '/admin/post-management',
     ACCOUNT_MANAGEMENT: '/admin/account-management',

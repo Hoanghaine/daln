@@ -8,14 +8,14 @@ import {
   Tabs,
   Stack,
 } from '@mui/material'
-import loginImg from '../../../assets/login-img.png'
-import { useRegisterMutation } from '../../../redux/api/api.caller' // API mutation
+import loginImg from '../../../../assets/login-img.png'
+import { useRegisterMutation } from '../../../../redux/api/api.caller' // API mutation
 import Grid from '@mui/material/Grid2'
 import { useNavigate } from 'react-router-dom'
 import { ToastContainer, toast } from 'react-toastify'
-import { IUserRegister } from '../../../types/user'
+import { IUserRegister } from '../../../../types/user'
 import 'react-toastify/dist/ReactToastify.css'
-import LazyLoading from '../../../components/LazyLoading'
+import LazyLoading from '../../../../components/LazyLoading'
 export default function Register() {
   const navigate = useNavigate()
   const [tabValue, setTabValue] = useState(0) // To manage the selected tab
@@ -32,7 +32,7 @@ export default function Register() {
     role: 'PATIENT',
   }) // Initial form data
   const [register, { isLoading }] = useRegisterMutation() // Mutation hook to call the register API
-
+  const [certificates, setCertificates] = useState<File[]>([]) // State to store selected files
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue)
     setFormData({
@@ -49,18 +49,40 @@ export default function Register() {
       [e.target.name]: e.target.value,
     })
   }
-  if(isLoading) return <LazyLoading />
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFiles = e.target.files
+    if (selectedFiles) {
+      const selectedArray = Array.from(selectedFiles)
+
+      if (selectedArray.length + certificates.length > 3) {
+        toast.error('Bạn chỉ có thể nhập tối đa 3 chứng chỉ!', {
+          theme: 'colored',
+          autoClose: 2000,
+          position: 'bottom-center',
+        })
+      } else {
+        setCertificates([...certificates, ...selectedArray].slice(0, 3)) // Ensure only 3 files max
+      }
+    }
+  }
+  if (isLoading) return <LazyLoading />
   const handleRegister = async () => {
     console.log('Register form data:', formData)
     try {
       const response = await register(formData).unwrap()
       console.log('Register response:', response)
       if (response) {
-        toast.success('Đăng ký thành công!', {
-          theme: 'colored',
-          autoClose: 2000,
-          position: 'top-right',
-        })
+        if (formData.role === 'DOCTOR') {
+          toast.success(
+            'Đăng ký thành công! Vui lòng kiểm tra email sau 1 2 ngày',
+            {
+              theme: 'colored',
+              autoClose: 2000,
+              position: 'top-right',
+            },
+          )
+        }
+
         setTimeout(() => {
           navigate('/login')
         }, 2000)
@@ -80,7 +102,6 @@ export default function Register() {
       })
     }
   }
-  const notify = () => toast('Wow so easy!')
 
   return (
     <Box
@@ -89,19 +110,64 @@ export default function Register() {
         width: '100%',
         padding: '32px 0px',
         position: 'relative',
+        display: 'flex',
+        justifyContent: 'center',
+        gap: 3,
       }}
     >
       <ToastContainer />
-      <Grid
-        container
+
+      <Box
         sx={{
-          maxWidth: '1152px',
-          margin: '0px auto',
-          flexWrap: 'nowrap',
+          display: 'flex',
+          flexDirection: 'column',
+          width: '550px',
         }}
-        spacing={2}
       >
-        <Grid size={6}>
+        <Stack
+          direction='row'
+          spacing={2}
+          justifyContent='flex-end'
+          alignItems='center'
+          mb={2}
+        >
+          <Typography variant='body1' color='initial'>
+            Bạn đã có tài khoản?{' '}
+          </Typography>
+          <Button variant='contained' onClick={() => navigate('/login')}>
+            Đăng nhập
+          </Button>
+        </Stack>
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            width: '500px',
+          }}
+        >
+          <Typography variant='h4' color='initial' textAlign={'center'} mb={2}>
+            Signup to{' '}
+            <Typography
+              variant='h4'
+              color='initial'
+              sx={{
+                color: '#3C5EAB',
+                display: 'inline-block',
+              }}
+            >
+              Psy
+            </Typography>
+            <Typography
+              variant='h4'
+              color='initial'
+              sx={{
+                color: '#65AD45',
+                display: 'inline-block',
+              }}
+            >
+              Connect
+            </Typography>
+          </Typography>
           <Tabs
             value={tabValue}
             onChange={handleTabChange}
@@ -112,12 +178,11 @@ export default function Register() {
             <Tab label='User Registration' />
             <Tab label='Doctor Registration' />
           </Tabs>
-
           <Box sx={{ padding: '16px' }}>
             <Stack spacing={2}>
               <TextField
                 label='Username'
-                variant='filled'
+                variant='outlined'
                 name='username'
                 value={formData.username}
                 onChange={handleInputChange}
@@ -125,28 +190,28 @@ export default function Register() {
               <TextField
                 label='Password'
                 type='password'
-                variant='filled'
+                variant='outlined'
                 name='password'
                 value={formData.password}
                 onChange={handleInputChange}
               />
               <TextField
                 label='Name'
-                variant='filled'
+                variant='outlined'
                 name='name'
                 value={formData.name}
                 onChange={handleInputChange}
               />
               <TextField
                 label='Email'
-                variant='filled'
+                variant='outlined'
                 name='email'
                 value={formData.email}
                 onChange={handleInputChange}
               />
               <TextField
                 label='Phone'
-                variant='filled'
+                variant='outlined'
                 name='phone'
                 value={formData.phone}
                 onChange={handleInputChange}
@@ -155,14 +220,14 @@ export default function Register() {
                 label='Date of Birth'
                 type='date'
                 InputLabelProps={{ shrink: true }}
-                variant='filled'
+                variant='outlined'
                 name='dob'
                 value={formData.dob}
                 onChange={handleInputChange}
               />
               <TextField
                 label='Address'
-                variant='filled'
+                variant='outlined'
                 name='address'
                 value={formData.address}
                 onChange={handleInputChange}
@@ -171,7 +236,7 @@ export default function Register() {
                 <>
                   <TextField
                     label='Specialization'
-                    variant='filled'
+                    variant='outlined'
                     name='specialization'
                     value={formData.specialization}
                     onChange={handleInputChange}
@@ -179,11 +244,27 @@ export default function Register() {
                   <TextField
                     label='Experience Years'
                     type='number'
-                    variant='filled'
+                    variant='outlined'
                     name='experienceYears'
                     value={formData.experienceYears}
                     onChange={handleInputChange}
                   />
+                  <Box>
+                    <Typography variant='body1' color='initial'>
+                      Import your certificates (Max 3)
+                    </Typography>
+                    <input
+                      type='file'
+                      multiple
+                      accept='image/*'
+                      onChange={handleFileChange}
+                    />
+                    {certificates.length > 0 && (
+                      <Typography variant='body2' color='initial'>
+                        {certificates.length} file(s) selected
+                      </Typography>
+                    )}
+                  </Box>
                 </>
               )}
               <Button
@@ -197,11 +278,20 @@ export default function Register() {
               </Button>
             </Stack>
           </Box>
-        </Grid>
-        <Grid size={6}>
-          <Box component='img' src={loginImg}></Box>
-        </Grid>
-      </Grid>
+        </Box>
+      </Box>
+
+      <Box
+        component='img'
+        src={loginImg}
+        sx={{
+          width: '500px',
+          height: '100%',
+          objectFit: 'cover',
+          borderRadius: '16px',
+          flexGrow: 0,
+        }}
+      ></Box>
     </Box>
   )
 }

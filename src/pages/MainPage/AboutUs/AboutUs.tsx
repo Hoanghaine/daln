@@ -1,4 +1,4 @@
-import { Box, Typography } from '@mui/material'
+import { Box, Typography, Stack } from '@mui/material'
 import Grid from '@mui/material/Grid2'
 import Testimonials from '../../../assets/testimonials.png'
 import NewsSection from '../../../components/mainPage/NewsSection'
@@ -11,7 +11,7 @@ function AboutUs() {
         container
         sx={{
           maxWidth: '1152px',
-          padding: '16px 0',
+          padding: '30px 0',
           gap: '20px',
           backgroundColor: '#fff',
           margin: '0px auto',
@@ -19,16 +19,20 @@ function AboutUs() {
           flexDirection: 'column',
         }}
       >
-        <Grid size={10} sx={{ margin: '0 auto' }}>
+        <Grid size={12} sx={{ margin: '0 auto' }}>
           <Box
             sx={{
+              // backgroundColor: '#65AD45',
               display: 'flex',
+              borderRadius: '8px',
               gap: '16px',
-              padding: '16px',
               '& ul': {
+                fontSize: '16px',
                 paddingLeft: '16px',
                 '& li::marker': {
                   color: '#3C5EAB',
+                  fontSize: '16px',
+                  marginBottom: '8px',
                 },
               },
             }}
@@ -40,15 +44,24 @@ function AboutUs() {
                 width: '418px',
                 height: '510px',
                 objectFit: 'cover',
+                borderRadius: '8px',
               }}
             ></Box>
-            <Box>
-              <Typography variant='body1' color='initial'>
-                Chào mừng bạn đến với PsyConnect
-              </Typography>
-              <Typography variant='h4' color='initial'>
-                Best Care for Your Mental Health
-              </Typography>
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '16px',
+              }}
+            >
+              <Stack spacing={0.5}>
+                <Typography variant='h5' color='#65AD45'>
+                  Chào mừng bạn đến với PsyConnect
+                </Typography>
+                <Typography variant='h4' color=''>
+                  Best Care for Your Mental Health
+                </Typography>
+              </Stack>
               <ul>
                 <li>Trách nhiệm và tận tâm</li>
                 <li>Các chuyên gia được kiểm chứng</li>
@@ -64,9 +77,6 @@ function AboutUs() {
               </Typography>
             </Box>
           </Box>
-        </Grid>
-        <Grid size={12}>
-          <Box component={'img'} src={Testimonials}></Box>
         </Grid>
       </Grid>
       <OurDoctorsSection />

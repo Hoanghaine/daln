@@ -16,7 +16,6 @@ import {
   Stack,
   Tabs,
   Tab,
-  Pagination,
 } from '@mui/material'
 import DeleteIcon from '@mui/icons-material/Delete'
 import LockIcon from '@mui/icons-material/Lock'
@@ -25,37 +24,122 @@ import CloseIcon from '@mui/icons-material/Close'
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined'
 import { IDoctor } from '../../../types/doctor'
 import { Ipatient } from '../../../types/patient'
-import { IUser } from '../../../types/user'
-import { useEffect } from 'react'
 import {
   useGetAccountsQuery,
+  useGetDoctorDetailQuery,
+  useGetPatientDetailQuery,
+  useApproveDoctorMutation,
 } from '../../../redux/api/api.caller'
 import LazyLoading from '../../../components/LazyLoading'
+import { IUser } from '../../../types/user'
+import React from 'react'
 // Mock data
 
-function AccountManagement() {
+export default function AccountManagement() {
   const [isDoctor, setIsDoctor] = useState(false)
   const [selectedAccount, setSelectedAccount] = useState<
-    Ipatient | IDoctor | null
+    IDoctor | Ipatient | null
   >(null)
   const [openDialog, setOpenDialog] = useState(false)
   const [currentTab, setCurrentTab] = useState(0)
   const [page, setPage] = useState(0)
+  const [currentAccountId, setCurrentAccountId] = useState<number | null>(null) // Track account ID
+  const [isDoctorAccount, setIsDoctorAccount] = useState(false)
+
   const {
     data: accountsData,
     isLoading,
     isError,
+    refetch: refetchAccounts,
   } = useGetAccountsQuery({ page, size: 10 })
 
+  const { data: doctorDetail } = useGetDoctorDetailQuery(currentAccountId!, {
+    skip: !isDoctorAccount || !currentAccountId,
+  })
+
+  const { data: patientDetail } = useGetPatientDetailQuery(currentAccountId!, {
+    skip: isDoctorAccount || !currentAccountId,
+  })
+
   const customerAccounts = accountsData?.data.elements.filter(
-    account => account.role === 'patient',
+    account => account.role === 'PATIENT',
   )
   const doctorAccounts = accountsData?.data.elements.filter(
-    account => account.role === 'doctor',
+    account => account.role === 'DOCTOR',
   )
+
   if (accountsData) {
     console.log(accountsData.data.elements)
   }
+
+  // Mở popup xem chi tiết tài khoản
+  const handleOpenDialog = (account: IUser, isDoctorAccount: boolean) => {
+    if (isDoctorAccount) {
+      const doctorAccount: IDoctor = {
+        id: account.id,
+        name: '', 
+        email: '', 
+        address: '', 
+        phone: '', 
+        dob: '', 
+        role: account.role,
+        avatar: '', 
+        createdDate: '', 
+        lastModifiedDate: '', 
+        certificates: [], 
+        specialization: '', 
+        about: '', 
+        degree: '', 
+        avgRating: 0, 
+        experience: 0, 
+        status: account.status, // From IUser
+      }
+      setSelectedAccount(doctorAccount)
+    } else {
+      const patientAccount: Ipatient = {
+        id: account.id,
+        name: '', 
+        email: '', 
+        address: '', 
+        phone: '', 
+        dob: '', 
+        avatar: '', 
+      }
+      setSelectedAccount(patientAccount)
+    }
+    setOpenDialog(true)
+    setCurrentAccountId(account.id)
+    setIsDoctorAccount(isDoctorAccount)
+  }
+  const handleDeleteAccount = (accountId: number) => {
+    console.log(`Delete account with id: ${accountId}`)
+  }
+
+  const [approveDoctor] = useApproveDoctorMutation()
+  const handleApproveDoctor = async (doctorId: number) => {
+    try {
+      console.log('Approving doctor:', doctorId)
+      await approveDoctor(doctorId)
+      alert(`Bác sĩ đã được duyệt thành công!`)
+      refetchAccounts()
+    } catch (error) {
+      console.error('Error approving doctor:', error)
+      alert('Có lỗi xảy ra khi duyệt bác sĩ.')
+    }
+  }
+  React.useEffect(() => {
+    if (doctorDetail && isDoctorAccount) {
+      setSelectedAccount(prev => ({
+        ...prev,
+        ...doctorDetail.data, // Cập nhật thông tin chi tiết bác sĩ
+      }))
+    } else if (patientDetail && !isDoctorAccount) {
+      setSelectedAccount(prev => ({
+        ...prev,
+        ...patientDetail.data, // Cập nhật thông tin chi tiết bệnh nhân
+      }))
+    }
+  }, [doctorDetail, patientDetail, isDoctorAccount])
 
   if (isLoading) return <LazyLoading />
   if (isError || !accountsData?.data.elements.length) {
@@ -65,23 +149,7 @@ function AccountManagement() {
       </Typography>
     )
   }
-  // Mở popup xem chi tiết tài khoản
-  const handleOpenDialog = (
-    account: Ipatient | IDoctor,
-    isDoctorAccount: boolean,
-  ) => {
-    setSelectedAccount(account)
-    setIsDoctor(isDoctorAccount)
-    setOpenDialog(true)
-  }
-  const handleDeleteAccount = (accountId: number) => {
-    // Call delete API or dispatch action
-    // if (window.confirm(`Are you sure you want to delete this account?`)) {
-    //   deleteAccountApiCall(accountId); // Implement this function
-    // }
 
-    console.log(`Delete account with id: ${accountId}`)
-  }
   const handleCloseDialog = () => {
     setOpenDialog(false)
     setSelectedAccount(null)
@@ -96,12 +164,11 @@ function AccountManagement() {
     }
   }
 
-  const renderAccountTable = (
-    accounts: (Ipatient | IDoctor)[],
-    isDoctor: boolean = false,
-  ) => (
+  const renderAccountTable = (accounts: IUser[]) => (
     <Table
       sx={{
+        width: '80%',
+        margin: 'auto',
         borderRadius: '16px ',
         border: '1px solid #65AD45',
         overflow: 'hidden',
@@ -114,25 +181,42 @@ function AccountManagement() {
           backgroundColor: '#65AD45',
         }}
       >
-        <TableRow
-          sx={{
-            '& > *': {
+        <TableRow>
+          <TableCell
+            sx={{
               textAlign: 'center',
-              borderBottom: '1px solid #999',
               fontWeight: 'bold',
               color: 'white',
               fontSize: '16px',
-            },
-          }}
-        >
-          <TableCell>Tên</TableCell>
-          <TableCell>Email</TableCell>
-          <TableCell>Trạng thái</TableCell>
-          <TableCell>Hành động</TableCell>
+            }}
+          >
+            Tên đăng nhập
+          </TableCell>
+          {/* <TableCell>Email</TableCell> */}
+          <TableCell
+            sx={{
+              textAlign: 'center',
+              fontWeight: 'bold',
+              color: 'white',
+              fontSize: '16px',
+            }}
+          >
+            Trạng thái
+          </TableCell>
+          <TableCell
+            sx={{
+              textAlign: 'center',
+              fontWeight: 'bold',
+              color: 'white',
+              fontSize: '16px',
+            }}
+          >
+            Hành động
+          </TableCell>
         </TableRow>
       </TableHead>
       <TableBody>
-        {accounts.map((account: Ipatient | IDoctor) => (
+        {accounts.map((account: IUser) => (
           <TableRow
             key={account.id}
             sx={{
@@ -143,20 +227,10 @@ function AccountManagement() {
               },
             }}
           >
-            <TableCell>{account.name}</TableCell>
-            <TableCell>{account.email}</TableCell>
+            <TableCell>{account.username}</TableCell>
+            <TableCell>{isDoctor ? account.status : 'ACTIVE'}</TableCell>
             <TableCell>
-              {isDoctor ? (account as IDoctor).status : 'active'}
-            </TableCell>
-            <TableCell>
-              <Stack
-                direction='row'
-                spacing={1}
-                sx={{
-                  justifyContent: 'flex-start',
-                  paddingLeft: '50px',
-                }}
-              >
+              <Stack direction='row' spacing={1} justifyContent={'center'}>
                 <IconButton
                   color='success'
                   onClick={() => handleOpenDialog(account, isDoctor)}
@@ -171,17 +245,10 @@ function AccountManagement() {
                 >
                   <VisibilityOutlinedIcon />
                 </IconButton>
-                <IconButton
-                  color='warning'
-                  onClick={() =>
-                    alert(`Khóa/Mở khóa tài khoản ${account.name}`)
-                  }
-                >
-                  <LockIcon />
-                </IconButton>
+
                 <IconButton
                   color='error'
-                  onClick={() => alert(`Xóa tài khoản ${account.name}`)}
+                  onClick={() => alert(`Xóa tài khoản ${account.username}`)}
                 >
                   <DeleteIcon />
                 </IconButton>
@@ -204,15 +271,15 @@ function AccountManagement() {
         <Tab label='Tài khoản bác sĩ' />
       </Tabs>
 
-      {/* {currentTab === 0 && (
+      {currentTab === 0 && customerAccounts && (
         <Box mt={2}>{renderAccountTable(customerAccounts)}</Box>
       )}
 
-      {currentTab === 1 && (
-        <Box mt={2}>{renderAccountTable(doctorAccounts, true)}</Box>
+      {currentTab === 1 && doctorAccounts && (
+        <Box mt={2}>{renderAccountTable(doctorAccounts)}</Box>
       )}
-      <Pagination
-        count={Math.ceil(totalAccounts / 10)} // totalAccounts from API
+      {/* <Pagination
+        count={Math.ceil(totalAccounts / 10)}
         page={page + 1}
         onChange={(event, newPage) => setPage(newPage - 1)}
       /> */}
@@ -246,14 +313,11 @@ function AccountManagement() {
           <DialogContent>
             <Box display='flex' flexDirection='row' gap='16px'>
               <Box
-                component='img'
-                src={selectedAccount.imageUrl}
+                component={'img'}
+                src={selectedAccount.avatar || '/placeholder-avatar.png'}
                 sx={{ width: 150, height: 150, borderRadius: '50%' }}
               />
               <Box flexGrow={1}>
-                <Typography>
-                  <strong>Tên đăng nhập:</strong> {selectedAccount.username}
-                </Typography>
                 <Typography>
                   <strong>Tên:</strong> {selectedAccount.name}
                 </Typography>
@@ -291,22 +355,32 @@ function AccountManagement() {
                   <strong>Giới thiệu:</strong>{' '}
                   {(selectedAccount as IDoctor).about}
                 </Typography>
-
+                <Typography>
+                  <strong>Đánh giá trung bình:</strong>{' '}
+                  {(selectedAccount as IDoctor).avgRating}
+                </Typography>
                 <Typography>
                   <strong>Chứng chỉ:</strong>
                 </Typography>
                 <Box display='flex' flexDirection='row' gap='8px'>
-                  {(selectedAccount as IDoctor).listCertificates.map(
-                    (cert, index) => (
-                      <Box
-                        component='img'
-                        key={index}
-                        src={cert}
-                        sx={{ width: 100, height: 100 }}
-                      />
-                    ),
+                  {selectedAccount &&
+                  'listCertificates' in selectedAccount &&
+                  (selectedAccount as IDoctor).certificates.length > 0 ? (
+                    (selectedAccount as IDoctor).certificates.map(
+                      (cert, index) => (
+                        <Box
+                          component='img'
+                          key={index}
+                          src={cert}
+                          sx={{ width: 100, height: 100 }}
+                        />
+                      ),
+                    )
+                  ) : (
+                    <Typography>Chưa có chứng chỉ</Typography> // Thông báo nếu chưa có certificates
                   )}
                 </Box>
+
                 <Typography>
                   <strong>Trạng thái:</strong>{' '}
                   {(selectedAccount as IDoctor).status}
@@ -315,7 +389,7 @@ function AccountManagement() {
             )}
           </DialogContent>
           <DialogActions>
-            {(selectedAccount as IDoctor)?.status === 'pending' && isDoctor && (
+            {(selectedAccount as IDoctor).status === 'PENDING' && (
               <Stack
                 sx={{
                   width: '100%',
@@ -331,7 +405,7 @@ function AccountManagement() {
                   startIcon={<CheckIcon />}
                   variant='contained'
                   color='success'
-                  onClick={() => alert(`Duyệt bác sĩ ${selectedAccount.name}`)}
+                  onClick={() => handleApproveDoctor(selectedAccount.id)}
                 >
                   Duyệt
                 </Button>
@@ -339,9 +413,7 @@ function AccountManagement() {
                   startIcon={<CloseIcon />}
                   variant='outlined'
                   color='error'
-                  onClick={() =>
-                    alert(`Từ chối bác sĩ ${selectedAccount.name}`)
-                  }
+                  onClick={handleCloseDialog}
                 >
                   Từ chối
                 </Button>
@@ -353,5 +425,3 @@ function AccountManagement() {
     </Box>
   )
 }
-
-export default AccountManagement

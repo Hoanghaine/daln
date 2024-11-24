@@ -3,20 +3,17 @@ import {
   Typography,
   Stack,
   Button,
-  TextField,
   Paper,
   InputBase,
   IconButton,
   Dialog,
   DialogTitle,
   DialogContent,
-  DialogActions,
+  Avatar,
 } from '@mui/material'
 import Grid from '@mui/material/Grid2'
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday'
-import AccountCircleOutlinedIcon from '@mui/icons-material/AccountCircleOutlined'
 import FavoriteBorderOutlinedIcon from '@mui/icons-material/FavoriteBorderOutlined'
-import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined'
 import { useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 import { useGetPostsQuery } from '../../../redux/api/api.caller'
@@ -25,8 +22,12 @@ import AddPost from './AddPost/AddPost'
 import SearchIcon from '@mui/icons-material/Search'
 import CreateIcon from '@mui/icons-material/Create'
 import LazyLoading from '../../../components/LazyLoading'
+import FavoriteSharpIcon from '@mui/icons-material/FavoriteSharp'
 const categories = ['Tư vấn']
 import CloseIcon from '@mui/icons-material/Close'
+import CommentIcon from '@mui/icons-material/Comment'
+import { toast, ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 const RelativePost = ({ title, author }: { title: string; author: string }) => (
   <Box
     sx={{
@@ -58,8 +59,10 @@ const Post = ({
   title,
   content,
   thumbnail,
+  avatar,
   createdAt,
   author,
+  liked,
   totalLikes,
   totalComment,
 }: IPost) => {
@@ -75,39 +78,68 @@ const Post = ({
       sx={{
         width: '100%',
         backgroundColor: '#fff',
-        boxShadow: '0 0 10px 0 rgba(0,0,0,0.1)',
-        borderRadius: '16px',
+        boxShadow: '0 1px 2px rgba(0, 0, 0, .2)',
+
+        borderRadius: '8px',
         marginBottom: '16px',
+        '&:hover': {
+          boxShadow: '0 1px 2px rgba(0, 0, 0, .5)',
+        },
       }}
     >
-      {thumbnail && (
-        <Box
-          onClick={loadDetailPost}
-          component={'img'}
-          src={thumbnail}
-          sx={{
-            width: '100%',
-            height: '200px',
-            objectFit: 'cover',
-            borderRadius: ' 16px 16px 0 0',
-          }}
-        ></Box>
-      )}
+      <Box
+        sx={{
+          overflow: 'hidden',
+          borderRadius: '8px 8px 0 0',
+        }}
+      >
+        {thumbnail && (
+          <Box
+            onClick={loadDetailPost}
+            component={'img'}
+            src={thumbnail}
+            sx={{
+              cursor: 'pointer',
+              width: '100%',
+              height: '350px',
+              objectFit: 'cover',
+              borderRadius: ' 8px 8px 0 0',
+              '&:hover': {
+                transform: 'scale(1.05)',
+                transition: 'transform 0.3s ease-in-out',
+              },
+            }}
+          ></Box>
+        )}
+      </Box>
       <Box
         sx={{
           padding: '8px 16px 16px 16px',
         }}
       >
-        <Typography variant='h5' color='initial' onClick={loadDetailPost}>
+        <Typography
+          variant='h5'
+          color='initial'
+          onClick={loadDetailPost}
+          fontWeight={'bold'}
+          mb={1}
+        >
           {title}
         </Typography>
-        <Typography variant='body2' color='initial'>
-          {content}
-        </Typography>
+        <Box
+          sx={{
+            display: '-webkit-box',
+            WebkitLineClamp: 3, // Hiển thị tối đa 3 dòng
+            WebkitBoxOrient: 'vertical',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            mb: '16px',
+          }}
+          dangerouslySetInnerHTML={{ __html: content }}
+        />
         <Stack
           direction='row'
           spacing={3}
-          mt={1}
           sx={{
             color: '#000',
           }}
@@ -115,26 +147,28 @@ const Post = ({
           <Typography
             sx={{ display: 'flex', alignItems: 'center', gap: '4px' }}
           >
-            <VisibilityOutlinedIcon
-              style={{ color: '#3C5EAB', fontSize: '20px' }}
-            />
-            {totalComment}
+            <Avatar src={avatar}></Avatar>
+            {author}
           </Typography>
           <Typography
             sx={{ display: 'flex', alignItems: 'center', gap: '4px' }}
           >
-            <FavoriteBorderOutlinedIcon
-              style={{ color: '#3C5EAB', fontSize: '20px' }}
-            />
+            {liked ? (
+              <FavoriteSharpIcon
+                style={{ color: '#3C5EAB', fontSize: '20px' }}
+              />
+            ) : (
+              <FavoriteBorderOutlinedIcon
+                style={{ color: '#3C5EAB', fontSize: '20px' }}
+              />
+            )}
             {totalLikes}
           </Typography>
           <Typography
             sx={{ display: 'flex', alignItems: 'center', gap: '4px' }}
           >
-            <AccountCircleOutlinedIcon
-              style={{ color: '#3C5EAB', fontSize: '20px' }}
-            />
-            {author}
+            <CommentIcon style={{ color: '#3C5EAB', fontSize: '20px' }} />
+            {totalComment}
           </Typography>
           <Typography
             sx={{ display: 'flex', alignItems: 'center', gap: '4px' }}
@@ -165,15 +199,17 @@ export default function Forum() {
   }
 
   const handleAddPostSuccess = () => {
-    console.log('Post added successfully!')
-
+    toast.success('Tạo bài viết mới thành công!', {
+      theme: 'colored',
+      autoClose: 2000,
+      position: 'bottom-right',
+    })
     refetch() // Re-fetch posts after successful addition
     setShowAddPost(false) // Optionally hide AddPost form after submission
   }
   const handleClose = () => {
     setShowAddPost(false) // Close the dialog when "Cancel" is clicked
   }
-
   if (isLoading) return <LazyLoading />
   if (isError || !data?.data.elements.length) {
     return (
@@ -189,10 +225,12 @@ export default function Forum() {
     <Box
       sx={{
         width: '100%',
-        backgroundColor: '#F0F2F5',
+        backgroundColor: '#F2F4F7',
         position: 'relative',
       }}
     >
+      <ToastContainer />
+
       <Grid
         container
         sx={{
@@ -213,6 +251,7 @@ export default function Forum() {
                 display: 'flex',
                 alignItems: 'center',
                 mb: '16px',
+                boxShadow: '0 1px 2px rgba(0, 0, 0, .2)',
               }}
             >
               <IconButton type='button' sx={{ p: '10px' }} aria-label='search'>
@@ -259,10 +298,8 @@ export default function Forum() {
                     backgroundColor: '#D6D9DD',
                     padding: '2px',
                     borderRadius: '50%',
-                    '&:hover': {
-                      color: 'red',
-                    },
                   }}
+                  onClick={handleClose}
                 />
               </DialogTitle>
               <DialogContent>
@@ -274,7 +311,7 @@ export default function Forum() {
           <Box
             sx={{
               backgroundColor: '#ffff',
-              boxShadow: '0 0 10px 0 rgba(0,0,0,0.1)',
+              boxShadow: '0 1px 2px rgba(0, 0, 0, .2)',
               padding: '16px',
               borderRadius: '8px',
               position: 'sticky',
@@ -317,7 +354,7 @@ export default function Forum() {
             sx={{
               backgroundColor: '#fff',
               padding: '16px',
-              boxShadow: '0 0 10px 0 rgba(0,0,0,0.1)',
+              boxShadow: '0 1px 2px rgba(0, 0, 0, .2)',
               borderRadius: '8px',
               position: 'sticky',
               top: '164px',

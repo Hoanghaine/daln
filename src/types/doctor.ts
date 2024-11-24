@@ -10,11 +10,11 @@ export interface IDoctor {
   createdDate: string
   lastModifiedDate: string
   certificates: string[]
-specialization: string
+  specialization: string
   about: string
   degree: string
   avgRating: number
-  experience: string
+  experience: number
   status: string
 }
 export interface IDoctorDetailResponse {
