@@ -1,4 +1,4 @@
-import Grid from '@mui/material/Grid2'
+
 import loginImg from '../../../../assets/login-img.png'
 import { Box, Typography, TextField, Button, Stack } from '@mui/material'
 import CustomizedMenus from './CustomizedMenus'
@@ -12,7 +12,7 @@ function Login() {
   const navigate = useNavigate()
   const [username, setUsername] = useState('') // Quản lý username
   const [password, setPassword] = useState('') // Quản lý password
-  const [role, setRole] = useState('doctor')
+  const [role, setRole] = useState('')
 
   // Mutation hook để gọi API login
   const [login, { isLoading }] = useLoginMutation()
@@ -27,8 +27,10 @@ function Login() {
       status: 'APPROVED',
     } // Tạo object User
     try {
+      if(!userData.role) {
+        userData.role = 'patient'
+      }
       const response = await login(userData).unwrap() // Gọi API login
-      console.log('Login response:', response)
       if (response) {
         const token = response.data.token
 
@@ -37,6 +39,7 @@ function Login() {
           username: response.data.username, // Ví dụ nếu API trả về username
           avatar: response.data.avatar, // Ví dụ nếu API trả về avatar
         }
+        console.log(' userData:', userData)
 
         localStorage.setItem('token', token)
         localStorage.setItem('userInfo', JSON.stringify(userInfo)) // Lưu thông tin người dùng
@@ -145,7 +148,7 @@ function Login() {
           <CustomizedMenus setRole={setRole} /> {/* Truyền hàm setRole */}
           <Button
             variant='contained'
-            color='primary'
+            color='primary' 
             sx={{ width: '100%', marginTop: '16px' }}
             onClick={handleClickLogin}
             disabled={isLoading}

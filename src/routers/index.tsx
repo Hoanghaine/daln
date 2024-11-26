@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom'
 import { routes } from './routerPath'
 import LazyLoading from '../components/LazyLoading'
 import ScrollToTop from './ScrollToTop'
+import ProtectedRoute from './ProtectedRoute'
 const AppRoutes = () => {
   return (
     <Suspense fallback={<div>Loading...</div>}>
@@ -30,13 +31,13 @@ const AppRoutes = () => {
               {route.component && (
                 <Route
                   index
-                  element={
+                    element={
                     <Suspense fallback={<LazyLoading />}>
                       <route.component />
                     </Suspense>
                   }
                 />
-              )}
+              )}  
             </Route>
           ))}
         </Routes>

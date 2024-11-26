@@ -22,24 +22,18 @@ import {
   useGetPostsQuery,
   useDeletePostMutation,
 } from '../../../redux/api/api.caller'
-import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/Delete'
 import LazyLoading from '../../../components/LazyLoading'
 import PreviewIcon from '@mui/icons-material/Preview'
-import CreateIcon from '@mui/icons-material/Create'
-import CloseIcon from '@mui/icons-material/Close'
-import ErrorIcon from '@mui/icons-material/Error'
 import { IPost } from '../../../types/posts'
 import { toast, ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
-import AddPost from '../../MainPage/Forum/AddPost/AddPost'
 import ConfirmDeleteDialog from '../../../components/ConfirmDialogs/ConfirmDeleteDialog'
 
 const PostManagement = () => {
   const [selectedPost, setSelectedPost] = useState<IPost | null>(null)
   const [page, setPage] = useState<number>(0)
   const [selectedPostId, setSelectedPostId] = useState<number | null>(null)
-  const [showAddPost, setShowAddPost] = useState(false)
   const [openConfirmDialog, setOpenConfirmDialog] = useState(false)
   const { data, isLoading, isError, refetch } = useGetPostsQuery({
     page,
@@ -101,19 +95,6 @@ const PostManagement = () => {
     }
   }
 
-  const handleAddPostSuccess = () => {
-    toast.success('Tạo bài viết mới thành công!', {
-      theme: 'colored',
-      autoClose: 2000,
-      position: 'top-right',
-    })
-    refetch() // Re-fetch posts after successful addition
-    setShowAddPost(false) // Optionally hide AddPost form after submission
-  }
-  const handleClose = () => {
-    setShowAddPost(false) // Close the dialog when "Cancel" is clicked
-  }
-
   if (isLoading) {
     return <Typography>Loading...</Typography>
   }
@@ -129,52 +110,16 @@ const PostManagement = () => {
         open={openConfirmDialog}
         onClose={handleCloseConfirmDialog}
         onConfirm={handleDelete}
-        title = 'Xác nhận xóa'
-        message = 'Bạn có chắc chắn muốn xóa bài viết này không? Thao tác này không thể hoàn tác.'
+        title='Xác nhận xóa'
+        message='Bạn có chắc chắn muốn xóa bài viết này không? Thao tác này không thể hoàn tác.'
       />
 
-      <Dialog open={showAddPost} onClose={handleClose} maxWidth='sm' fullWidth>
-        <DialogTitle
-          sx={{
-            display: 'flex',
-            justifyContent: 'flex-end',
-            alignItems: 'center',
-            borderBottom: '1px solid #D6D9DD',
-          }}
-        >
-          <Typography
-            variant='h6'
-            color='initial'
-            sx={{ flexGrow: 1, textAlign: 'center' }}
-          >
-            Tạo bài viết
-          </Typography>
-          <CloseIcon
-            sx={{
-              cursor: 'pointer',
-              backgroundColor: '#D6D9DD',
-              padding: '2px',
-              borderRadius: '50%',
-            }}
-            onClick={handleClose}
-          />
-        </DialogTitle>
-        <DialogContent>
-          <AddPost onAddPostSuccess={handleAddPostSuccess} />
-        </DialogContent>
-      </Dialog>
+
 
       <Stack direction='row' justifyContent='space-between' alignItems='center'>
         <Typography variant='h5' mb={2}>
-          Quản lý bài viết
+          Quản lý bài đăng
         </Typography>
-        <Button
-          startIcon={<CreateIcon />}
-          variant='contained'
-          onClick={() => setShowAddPost(true)}
-        >
-          Đăng bài viết mới
-        </Button>
       </Stack>
       <TableContainer
         sx={{
@@ -245,10 +190,10 @@ const PostManagement = () => {
             {data?.data.elements.map(post => (
               <TableRow key={post.id}>
                 <TableCell>
-                  <Avatar
+                  <Box
+                    component='img'
                     src={post.thumbnail}
-                    variant='square'
-                    sx={{ width: 100, height: 70 }}
+                    sx={{ width: 100, height: 70, border: '1px solid #9999' }}
                   />
                 </TableCell>
                 <TableCell>{post.title}</TableCell>

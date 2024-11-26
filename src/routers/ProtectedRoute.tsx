@@ -1,32 +1,15 @@
-import React from 'react'
-import { Navigate, useNavigate } from 'react-router-dom'
+import React from 'react';
+import { Navigate } from 'react-router-dom';
 
-interface ProtectedRouteProps {
-  children: React.ReactNode
-  allowedRoles: string[] // Array of allowed roles
-}
+const ProtectedRoute: React.FC<{ children: React.ReactNode, allowedRoles: string[] }> = ({ children, allowedRoles }) => {
+  const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}');
+  const userRole = userInfo.role;
 
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
-  children,
-  allowedRoles,
-}) => {
-  const navigate = useNavigate()
-  const userInfo = localStorage.getItem('userInfo')
-
-  if (!userInfo) {
-    // If not logged in, redirect to login
-    navigate('/login')
-    return null
+  if (!userRole || (allowedRoles && !allowedRoles.includes(userRole))) {
+    return <Navigate to="/login" />;
   }
 
-  const { role } = JSON.parse(userInfo)
+  return <>{children}</>;
+};
 
-  if (!allowedRoles.includes(role)) {
-    navigate('/403')
-    return null
-  }
-
-  return <>{children}</>
-}
-
-export default ProtectedRoute
+export default ProtectedRoute;

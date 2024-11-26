@@ -12,7 +12,7 @@ const doctorProfile = {
   ],
 }
 
-const Slideshow = () => {
+const Slideshow = ({ certificates = doctorProfile.certificates }) => {
   return (
     <Swiper
       pagination={{ dynamicBullets: true }}
@@ -28,7 +28,7 @@ const Slideshow = () => {
         border: '1px solid #ccc',
       }}
     >
-      {doctorProfile?.certificates?.slice(0, 3).map((cert, index) => (
+      {certificates.slice(0, 3).map((cert, index) => (
         <SwiperSlide key={index}>
           <Box
             component='img'
@@ -36,7 +36,7 @@ const Slideshow = () => {
             alt={`Certificate ${index + 1}`}
             sx={{
               width: '100%',
-              height: 'auto',
+              height: '500px',
               objectFit: 'cover',
             }}
           />

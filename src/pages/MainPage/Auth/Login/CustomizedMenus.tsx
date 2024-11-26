@@ -5,12 +5,12 @@ import MenuItem from '@mui/material/MenuItem'
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 
 interface CustomizedMenusProps {
-  setRole: (role: string) => void // Định nghĩa props cho setRole
+  setRole: (role: string) => void 
 }
 
 export default function CustomizedMenus({ setRole }: CustomizedMenusProps) {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
-  const [displayRole, setDisplayRole] = React.useState('Chọn vai trò')
+  const [displayRole, setDisplayRole] = React.useState('Khách hàng')
   const open = Boolean(anchorEl)
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -23,6 +23,7 @@ export default function CustomizedMenus({ setRole }: CustomizedMenusProps) {
     } else if (role === 'doctor') {
       setDisplayRole('Bác sĩ')
     }
+
     setAnchorEl(null)
     setRole(role) // Truyền vai trò (role) về cho Login
   }

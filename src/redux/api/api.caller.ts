@@ -27,6 +27,13 @@ export const apiCaller = createApi({
         body: user,
       }),
     }),
+    adminLogin: builder.mutation({
+      query: user => ({
+        url: '/auth/admin/login',
+        method: 'POST',
+        body: user,
+      }),
+    }),
     register: builder.mutation<IUserRegister, IUserRegister>({
       query: user => ({
         url: '/auth/register',
@@ -38,6 +45,13 @@ export const apiCaller = createApi({
       query: () => ({
         url: '/auth/forgot-password',
         method: 'POST',
+      }),
+    }),
+    changePassword: builder.mutation({
+      query: ({ currentPassword, newPassword }) => ({
+        url: '/auth/change-password',
+        method: 'PUT',
+        body: { currentPassword, newPassword },
       }),
     }),
 
@@ -83,6 +97,21 @@ export const apiCaller = createApi({
         return {
           url: '/posts',
           method: 'POST',
+          body: formData,
+        }
+      },
+    }),
+    updatePost: builder.mutation({
+      query: ({ postId, title, content, tagId, thumbnail }) => {
+        const formData = new FormData()
+        formData.append('title', title)
+        formData.append('content', content)
+        formData.append('tagId', tagId.toString())
+        formData.append('thumbnail', thumbnail)
+
+        return {
+          url: `/posts/${postId}`,
+          method: 'PUT',
           body: formData,
         }
       },
@@ -170,6 +199,13 @@ export const apiCaller = createApi({
         method: 'PUT',
       }),
     }),
+    rejectDoctor: builder.mutation({
+      query: ({ doctorId, reason }: { doctorId: number; reason: string }) => ({
+        url: `/auth/reject/${doctorId}`,
+        method: 'PUT',
+        body: { reason },
+      }),
+    }),
     likePost: builder.mutation({
       query: postId => ({
         url: `/posts/like/${postId}`,
@@ -199,11 +235,16 @@ export const apiCaller = createApi({
 export const {
   useSubmitQuizzesMutation,
   useLoginMutation,
+  useAdminLoginMutation,
+  useChangePasswordMutation,
+  useForgotPasswordMutation,
+
   useGetQuizzesQuery,
   useGetPostsQuery,
   useGetOwnPostsQuery,
   useGetPostDetailQuery,
   useAddPostMutation,
+  useUpdatePostMutation,
   useGetAccountsQuery,
   useGetDoctorDetailQuery,
   useGetDoctorProfileQuery,
@@ -219,8 +260,8 @@ export const {
   useGetTagsQuery,
   useGetChatListQuery,
   useGetChatQuery,
-  useForgotPasswordMutation,
   useApproveDoctorMutation,
+  useRejectDoctorMutation,
   useLikePostMutation,
   useUnLikePostMutation,
   useGetPostCommentsQuery,

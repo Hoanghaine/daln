@@ -1,16 +1,32 @@
-import { Box, Stack, Typography, Avatar } from '@mui/material'
+import {
+  Box,
+  Stack,
+  Typography,
+  Avatar,
+  Button,
+  TextField,
+} from '@mui/material'
 import Grid from '@mui/material/Grid2'
 import SearchIcon from '@mui/icons-material/Search'
-import CallIcon from '@mui/icons-material/Call'
-import MoreHorizIcon from '@mui/icons-material/MoreHoriz'
 import {
   useGetChatListQuery,
   useGetChatQuery,
 } from '../../redux/api/api.caller'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import LazyLoading from '../../components/LazyLoading'
 // Mock data for messages
 import LogoutIcon from '@mui/icons-material/Logout'
+import { Stomp } from '@stomp/stompjs'
+
+interface ChatCardProps {
+  username: string
+  fullName: string
+  lastMessage: string
+  avatar: string
+  lastMessageTime: string
+  onClick: () => void
+}
+
 const ChatCard = ({
   username,
   fullName,
@@ -18,7 +34,7 @@ const ChatCard = ({
   avatar,
   lastMessageTime,
   onClick,
-}) => {
+}: ChatCardProps) => {
   return (
     <Stack
       onClick={onClick} // Handle click to load chat history for this user
@@ -76,7 +92,13 @@ const ChatCard = ({
 }
 
 // Function to render individual messages
-const Message = ({ content, timestamp, isOwnMessage }) => {
+interface MessageProps {
+  content: string
+  timestamp: string
+  isOwnMessage: boolean
+}
+
+const Message = ({ content, timestamp, isOwnMessage }: MessageProps) => {
   return (
     <Stack
       sx={{
@@ -100,24 +122,110 @@ const Message = ({ content, timestamp, isOwnMessage }) => {
 }
 
 function MessagePage() {
-  const { data: chatListData, error, isLoading } = useGetChatListQuery({})
   const [selectedChatUser, setSelectedChatUser] = useState(null)
-
-  // Lấy dữ liệu chat của user được chọn
+  const stompClient = useRef(null)
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([])
+  const [message, setMessage] = useState('')
+  const [username, setUsername] = useState('')
+  const [receiverName, setReceiverName] = useState('')
+  const { data: chatListData, error, isLoading } = useGetChatListQuery({})
   const { data: chatData } = useGetChatQuery(selectedChatUser, {
-    skip: !selectedChatUser, // Chỉ lấy chat khi đã có selectedChatUser
+    skip: !selectedChatUser,
   })
 
-  // Tự động lấy dữ liệu chat của user đầu tiên khi chatListData có dữ liệu
+  // Connect to WebSocket using STOMP
   useEffect(() => {
-    if (chatListData?.data?.length > 0) {
-      setSelectedChatUser(chatListData.data[0].username)
+    const connectWebSocket = async () => {
+      const token = localStorage.getItem('token')
+      if (!token) return
+
+      const userInfor = localStorage.getItem('userInfo')
+      if (userInfor) {
+        const userData = JSON.parse(userInfor)
+        setUsername(userData.username)
+      } else {
+        console.error('User info not found')
+        return
+      }
+
+      if (!username) {
+        console.error('Username is not set yet')
+        return
+      }
+
+      const socket = new WebSocket('ws://localhost:8080/ws')
+      const client = Stomp.over(socket)
+
+      client.connect({ Authorization: `Bearer ${token}` }, () => {
+        client.subscribe(`/user/${username}/root`, onPrivateMessageReceived)
+      })
+      stompClient.current = client
     }
-  }, [chatListData])
+
+    connectWebSocket()
+
+    return () => {
+      if (stompClient.current) {
+        stompClient.current.disconnect(() => console.log('Disconnected'))
+      }
+    }
+  }, [username, receiverName])
+
+  interface PrivateMessagePayload {
+    body: string
+  }
+
+  const onPrivateMessageReceived = (payload: PrivateMessagePayload) => {
+    console.log('payload:', payload.body)
+
+    const { message, senderName } = JSON.parse(payload.body)
+    displayMessage({ message, senderName })
+  }
+
+  interface ChatMessage {
+    message: string
+    timestamp: string
+    isOwnMessage: boolean
+  }
+
+  interface DisplayMessageProps {
+    message: string
+    senderName: string
+  }
+
+  const displayMessage = ({ message, senderName }: DisplayMessageProps) => {
+    setChatMessages(prev => [
+      ...prev,
+      {
+        message,
+        timestamp: new Date().toLocaleTimeString(),
+        isOwnMessage: senderName === username,
+      },
+    ])
+  }
+
+  const sendPrivateMessage = () => {
+    if (message && receiverName && stompClient.current) {
+      const chatMessage = {
+        senderName: username,
+        receiverName: receiverName,
+        message: message,
+      }
+      stompClient.current.send(
+        '/app/private-message',
+        { Authorization: 'Bearer ' + localStorage.getItem('token') },
+        JSON.stringify(chatMessage),
+      )
+      console.log('Sent message:', chatMessage)
+      displayMessage({ message, senderName: username })
+      setMessage('')
+    }
+  }
 
   const handleChatCardClick = username => {
-    setSelectedChatUser(username) // Cập nhật user đã chọn
+    setSelectedChatUser(username)
   }
+
   return (
     <Box
       sx={{
@@ -182,7 +290,7 @@ function MessagePage() {
               >
                 {chatListData.data.map(chat => (
                   <ChatCard
-                    key={chat.username}
+                    key={`${chat.username}-${chat.lastMessageTime}`} // Use a combination of username and timestamp to ensure uniqueness
                     username={chat.username}
                     fullName={chat.fullName}
                     lastMessage={chat.lastMessage}
@@ -202,12 +310,11 @@ function MessagePage() {
                 cursor: 'pointer',
                 fontSize: '32px',
               }}
-
             />
           </Stack>
         </Grid>
         <Grid size={8}>
-          <Box
+          {/* <Box
             sx={{
               display: 'flex',
               flexDirection: 'column',
@@ -286,6 +393,49 @@ function MessagePage() {
                 </Box>
               </>
             )}
+            <button onClick={sendMessage}>Send Test Message</button>
+          </Box> */}
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '16px',
+              padding: '16px',
+              backgroundColor: '#fff',
+              borderRadius: '16px',
+              height: '100%',
+            }}
+          >
+            <Typography variant='h6'>
+              Chat with {receiverName || '...'}
+            </Typography>
+            <Stack sx={{ maxHeight: '300px', overflowY: 'auto' }} spacing={1}>
+              {chatMessages.map((msg, index) => (
+                <Message
+                  key={`${msg.timestamp}-${msg.isOwnMessage}`} // Use timestamp and ownMessage to ensure a unique key
+                  content={msg.message}
+                  timestamp={msg.timestamp}
+                  isOwnMessage={msg.isOwnMessage}
+                />
+              ))}
+            </Stack>
+            <Stack direction='row' spacing={2} alignItems='center'>
+              <TextField
+                label="Receiver's Name"
+                variant='outlined'
+                value={receiverName}
+                onChange={e => setReceiverName(e.target.value)}
+              />
+              <TextField
+                label='Message'
+                variant='outlined'
+                value={message}
+                onChange={e => setMessage(e.target.value)}
+              />
+              <Button variant='contained' onClick={sendPrivateMessage}>
+                Send
+              </Button>
+            </Stack>
           </Box>
         </Grid>
       </Grid>

@@ -7,9 +7,38 @@ import {
   Tabs,
   Tab,
   CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Button,
+  TextField,
 } from '@mui/material'
-import { useGetPatientProfileQuery } from '../../../redux/api/api.caller'
-
+import {
+  useGetOwnPostsQuery,
+  useGetPatientProfileQuery,
+  useDeletePostMutation,
+} from '../../../redux/api/api.caller'
+import { toast, ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
+import AddPost from '../../MainPage/Forum/AddPost/AddPost'
+import ConfirmDeleteDialog from '../../../components/ConfirmDialogs/ConfirmDeleteDialog'
+import EditIcon from '@mui/icons-material/Edit'
+import DeleteIcon from '@mui/icons-material/Delete'
+import PreviewIcon from '@mui/icons-material/Preview'
+import CreateIcon from '@mui/icons-material/Create'
+import CloseIcon from '@mui/icons-material/Close'
+import { useNavigate } from 'react-router-dom'
+import { IPost } from '../../../types/posts'
+import EditPostDialog from '../../../components/Post/EditPostDialog'
+import { useChangePasswordMutation } from '../../../redux/api/api.caller'
 interface TabPanelProps {
   children?: React.ReactNode
   index: number
@@ -25,45 +54,175 @@ function TabPanel({ children, value, index }: TabPanelProps) {
 }
 
 export default function Personal() {
+  const [editingPost, setEditingPost] = useState<IPost | null>(null)
+  const [selectedPost, setSelectedPost] = useState<IPost | null>(null)
+  const [selectedPostId, setSelectedPostId] = useState<number | null>(null)
+  const [currentPassword, setCurrentPassword] = useState('')
+  const [newPassword, setNewPassword] = useState('')
   const [tabIndex, setTabIndex] = useState(0)
-  const { data, error, isLoading } = useGetPatientProfileQuery()
-  if (isLoading) {
-    return (
-      <Box
-        sx={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          height: '100vh',
-        }}
-      >
-        <CircularProgress />
-      </Box>
-    )
+  const [page, setPage] = useState<number>(0)
+  const [openConfirmDialog, setOpenConfirmDialog] = useState(false)
+  const [showAddPost, setShowAddPost] = useState(false)
+  const [changePassword, { isLoading }] = useChangePasswordMutation()
+  const [deletePost] = useDeletePostMutation()
+  const navigate = useNavigate()
+  const {
+    data,
+    error,
+    isLoading: isPatientProfileLoading,
+  } = useGetPatientProfileQuery()
+  const {
+    data: postData,
+    isLoading: isPostLoading,
+    isError,
+    refetch,
+  } = useGetOwnPostsQuery({
+    page,
+    size: 10,
+  })
+  if (isPatientProfileLoading) {
+    return <CircularProgress />
+  }
+  if (isPostLoading) {
+    return <CircularProgress />
   }
 
-  // Hiển thị lỗi nếu có
   if (error) {
     return <div>Error loading profile</div>
   }
-
-  // Lấy dữ liệu từ response
   const patientProfile = data?.data
-  console.log(patientProfile)
+  const handleViewPost = (post: IPost) => {
+    setSelectedPost(post)
+  }
+  const handleEditPost = (post: IPost) => {
+    setEditingPost({ ...post }) // Sao chép dữ liệu của bài viết
+  }
+
+  // Khi đóng dialog
+  const handleCloseEditDialog = () => {
+    setEditingPost(null) // Đảm bảo xóa sạch thông tin khi không cần thiết
+  }
+  const handleEditPostSuccess = () => {
+    toast.success('Tạo bài viết mới thành công!', {
+      theme: 'colored',
+      autoClose: 2000,
+      position: 'bottom-right',
+    })
+    refetch()
+  }
+  // Hàm đóng popup
+  const handleCloseDialog = () => {
+    setSelectedPost(null)
+  }
+  const handleOpenConfirmDialog = (postId: number) => {
+    setSelectedPostId(postId)
+    setOpenConfirmDialog(true)
+  }
+
+  // Đóng hộp thoại xác nhận
+  const handleCloseConfirmDialog = () => {
+    setOpenConfirmDialog(false)
+    setSelectedPostId(null)
+  }
+  const handleDelete = async () => {
+    if (selectedPostId) {
+      try {
+        const response = await deletePost(selectedPostId).unwrap()
+        if (response.data) {
+          toast.success('Xóa bài viết thành công!', {
+            theme: 'colored',
+            autoClose: 2000,
+            position: 'top-right',
+          })
+
+          refetch() // Tải lại danh sách bài viết sau khi xóa
+        }
+      } catch (error) {
+        toast.error('Xóa bài viết thất bại!', {
+          theme: 'colored',
+          autoClose: 2000,
+          position: 'top-right',
+        })
+      } finally {
+        handleCloseConfirmDialog() // Đóng hộp thoại sau khi xóa
+      }
+    }
+  }
+
+  const handleAddPostSuccess = () => {
+    toast.success('Tạo bài viết mới thành công!', {
+      theme: 'colored',
+      autoClose: 2000,
+      position: 'top-right',
+    })
+    refetch() // Re-fetch posts after successful addition
+    setShowAddPost(false) // Optionally hide AddPost form after submission
+  }
+  const handleClose = () => {
+    setShowAddPost(false) // Close the dialog when "Cancel" is clicked
+  }
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabIndex(newValue)
+  }
+
+  const handleMoveToPost = (postId: number) => {
+    navigate(`/forum/${postId}`)
+  }
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (currentPassword === newPassword) {
+      toast.error('Không được để mật khẩu mới trùng với mật khẩu cũ!', {
+        theme: 'colored',
+        autoClose: 2000,
+        position: 'top-right',
+      })
+      return
+    }
+
+    try {
+      const response = await changePassword({
+        currentPassword,
+        newPassword,
+      }).unwrap()
+      if (response.data) {
+        toast.success('Đổi mật khẩu mới thành công!', {
+          theme: 'colored',
+          autoClose: 2000,
+          position: 'top-right',
+        })
+        setCurrentPassword('')
+        setNewPassword('')
+      }else{
+        toast.error('Đổi mật khẩu thất bại!', {
+          theme: 'colored',
+          autoClose: 2000,
+          position: 'top-right',
+        })
+      }
+    } catch (error: any) {
+      // Kiểm tra phản hồi lỗi từ API
+      if (error?.data?.error === 'Invalid password') {
+        toast.error('Không được để mật khẩu mới trùng với mật khẩu cũ!', {
+          theme: 'colored',
+          autoClose: 2000,
+          position: 'top-right',
+        })
+      } 
+    }
   }
 
   return (
     <Box
       sx={{
         width: '100%',
+        height: '100%',
         backgroundColor: '#f5f5f5',
         padding: '2rem',
         display: 'flex',
         gap: '20px',
       }}
     >
+      <ToastContainer />
       <Stack
         alignItems='center'
         spacing={2}
@@ -93,6 +252,7 @@ export default function Personal() {
           <Tab label='Thông tin cá nhân' sx={{ width: '100%' }} />
           <Tab label='Lịch hẹn' />
           <Tab label='Bài viết cá nhân' />
+          <Tab label='Đổi mật khẩu' />
         </Tabs>
       </Stack>
 
@@ -101,6 +261,7 @@ export default function Personal() {
           flex: 1,
           backgroundColor: '#ffffff',
           borderRadius: 2,
+          height: '100%',
           p: 2,
           boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
         }}
@@ -176,9 +337,278 @@ export default function Personal() {
           </Stack>
         </TabPanel>
         <TabPanel value={tabIndex} index={2}>
+          <Box
+            sx={{
+              padding: '16px',
+            }}
+          >
+            <ToastContainer />
+            <ConfirmDeleteDialog
+              open={openConfirmDialog}
+              onClose={handleCloseConfirmDialog}
+              onConfirm={handleDelete}
+              title='Xác nhận xóa'
+              message='Bạn có chắc chắn muốn xóa bài viết này không? Thao tác này không thể hoàn tác.'
+            />
+
+            <Dialog
+              open={showAddPost}
+              onClose={handleClose}
+              maxWidth='sm'
+              fullWidth
+            >
+              <DialogTitle
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'flex-end',
+                  alignItems: 'center',
+                  borderBottom: '1px solid #D6D9DD',
+                }}
+              >
+                <Typography
+                  variant='h6'
+                  color='initial'
+                  sx={{ flexGrow: 1, textAlign: 'center' }}
+                >
+                  Tạo bài viết
+                </Typography>
+                <CloseIcon
+                  sx={{
+                    cursor: 'pointer',
+                    backgroundColor: '#D6D9DD',
+                    padding: '2px',
+                    borderRadius: '50%',
+                  }}
+                  onClick={handleClose}
+                />
+              </DialogTitle>
+              <DialogContent>
+                <AddPost onAddPostSuccess={handleAddPostSuccess} />
+              </DialogContent>
+            </Dialog>
+
+            <Stack
+              direction='row'
+              justifyContent='space-between'
+              alignItems='center'
+              mb={1}
+            >
+              <Typography variant='h5' mb={2} textAlign={'center'}>
+                Bài viết của tôi
+              </Typography>
+              {postData?.data.elements.length !== 0 ? (
+                <Button
+                  startIcon={<CreateIcon />}
+                  variant='contained'
+                  onClick={() => setShowAddPost(true)}
+                >
+                  Đăng bài viết mới
+                </Button>
+              ) : (
+                ''
+              )}
+            </Stack>
+            {postData?.data.elements.length === 0 ? (
+              <Stack
+                flexDirection={'row'}
+                justifyContent={'flex-start'}
+                alignItems={'center'}
+                gap={2}
+              >
+                <Typography>Chưa có bài viết nào</Typography>
+                <Button
+                  startIcon={<CreateIcon />}
+                  variant='contained'
+                  onClick={() => setShowAddPost(true)}
+                >
+                  Tạo bài viết mới ngay
+                </Button>
+              </Stack>
+            ) : (
+              <TableContainer
+                sx={{
+                  borderRadius: '16px',
+                  border: '1px solid #65AD45',
+                }}
+              >
+                <Table>
+                  <TableHead
+                    sx={{
+                      fontWeight: 'bold',
+                      backgroundColor: '#65AD45',
+                    }}
+                  >
+                    <TableRow>
+                      <TableCell
+                        sx={{
+                          fontWeight: 'bold',
+                          fontSize: '16px',
+                          color: 'white',
+                        }}
+                      >
+                        Thumbnail
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          fontWeight: 'bold',
+                          fontSize: '16px',
+                          color: 'white',
+                        }}
+                      >
+                        Tiêu đề
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          fontWeight: 'bold',
+                          fontSize: '16px',
+                          color: 'white',
+                        }}
+                      >
+                        Danh mục
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          fontWeight: 'bold',
+                          fontSize: '16px',
+                          color: 'white',
+                        }}
+                      >
+                        Thời gian tạo
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          fontWeight: 'bold',
+                          fontSize: '16px',
+                          color: 'white',
+                        }}
+                      ></TableCell>{' '}
+                      {/* Empty header for action buttons */}
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {postData?.data.elements.map(post => (
+                      <TableRow key={post.id}>
+                        <TableCell>
+                          <Avatar
+                            src={post.thumbnail}
+                            variant='square'
+                            sx={{ width: 100, height: 70 }}
+                          />
+                        </TableCell>
+                        <TableCell>{post.title}</TableCell>
+                        <TableCell>{post.tag}</TableCell>
+                        <TableCell>
+                          {new Date(post.createdAt).toLocaleDateString()}
+                        </TableCell>
+                        <TableCell>
+                          <Box display='flex' flexDirection='column' gap={1}>
+                            <PreviewIcon
+                              sx={{
+                                cursor: 'pointer',
+                                fontSize: '26px',
+                                color: '#65AD45',
+                              }}
+                              onClick={() => handleMoveToPost(post.id)}
+                            />
+                            <EditIcon
+                              sx={{
+                                cursor: 'pointer',
+                                fontSize: '26px',
+                                color: '#65AD45',
+                              }}
+                              onClick={() => handleEditPost(post)}
+                            />
+                            <DeleteIcon
+                              sx={{
+                                cursor: 'pointer',
+                                fontSize: '26px',
+                                color: 'red',
+                              }}
+                              onClick={() => handleOpenConfirmDialog(post.id)}
+                            />
+                          </Box>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            )}
+            {editingPost && (
+              <EditPostDialog
+                post={editingPost}
+                onClose={handleCloseEditDialog}
+                refetch={refetch} // Hàm tải lại dữ liệu sau khi chỉnh sửa
+              />
+            )}
+            {/* Popup xem chi tiết bài viết */}
+            <Dialog open={!!selectedPost} onClose={handleCloseDialog}>
+              <DialogTitle>Chi tiết bài viết</DialogTitle>
+              <DialogContent>
+                {selectedPost && (
+                  <div>
+                    <DialogContentText>
+                      <strong>Tiêu đề:</strong> {selectedPost.title}
+                    </DialogContentText>
+                    <DialogContentText>
+                      <strong>Tác giả:</strong> {selectedPost.author}
+                    </DialogContentText>
+                    <DialogContentText>
+                      <strong>Nội dung:</strong> {selectedPost.content}
+                    </DialogContentText>
+                    <DialogContentText>
+                      <strong>Ngày đăng:</strong>{' '}
+                      {new Date(selectedPost.createdAt).toLocaleDateString()}
+                    </DialogContentText>
+                  </div>
+                )}
+              </DialogContent>
+              <DialogActions>
+                <Button onClick={handleCloseDialog} color='primary'>
+                  Đóng
+                </Button>
+              </DialogActions>
+            </Dialog>
+          </Box>
+        </TabPanel>
+        <TabPanel value={tabIndex} index={3}>
           <Typography variant='h6' sx={{ mb: 2, textAlign: 'center' }}>
-            Bài viết cá nhân
+            Đổi mật khẩu
           </Typography>
+          <Stack
+            spacing={2}
+            component='form'
+            onSubmit={handleChangePassword}
+            width={'500px'}
+            margin={'0 auto'}
+          >
+            <TextField
+              label='Mật khẩu hiện tại'
+              type='password'
+              variant='outlined'
+              fullWidth
+              required
+              value={currentPassword}
+              onChange={e => setCurrentPassword(e.target.value)}
+            />
+            <TextField
+              label='Mật khẩu mới'
+              type='password'
+              variant='outlined'
+              fullWidth
+              required
+              value={newPassword}
+              onChange={e => setNewPassword(e.target.value)}
+            />
+            <Button
+              type='submit'
+              variant='contained'
+              color='primary'
+              onClick={handleChangePassword}
+            >
+              Đổi mật khẩu
+            </Button>
+          </Stack>
         </TabPanel>
       </Box>
     </Box>

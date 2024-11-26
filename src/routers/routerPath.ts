@@ -2,6 +2,7 @@ import { ROUTE_PATH } from '../constants/routePath.constant'
 import React, { Children } from 'react'
 import ProtectedLayout from '../components/layouts/ProtectedLayout/ProtectedLayout'
 import BlankLayout from '../components/layouts/BlankLayout/BlankLayout'
+import { Route } from '../types/Route.ts'
 
 export const routes = [
   {
@@ -154,8 +155,9 @@ export const routes = [
   {
     label: 'Doctor Page',
     layout: ProtectedLayout,
+    path: ROUTE_PATH.DOCTOR.INDEX,
     exact: true,
-
+    allowedRoles: ['doctor'],
     children: [
       {
         label: 'Doctor Dashboard',
@@ -163,6 +165,7 @@ export const routes = [
         component: React.lazy(
           () => import('../pages/Doctor/Dashboard/Dashboard'),
         ),
+        allowedRoles: ['doctor'],
         exact: true,
       },
       {
@@ -171,6 +174,8 @@ export const routes = [
         component: React.lazy(
           () => import('../pages/Doctor/Schedule/Schedule'),
         ),
+        allowedRoles: ['doctor'],
+
         exact: true,
       },
 
@@ -180,6 +185,8 @@ export const routes = [
         component: React.lazy(
           () => import('../pages/Doctor/Treatment/Treatment.tsx'),
         ),
+        allowedRoles: ['doctor'],
+
         exact: true,
       },
       {
@@ -188,6 +195,8 @@ export const routes = [
         component: React.lazy(
           () => import('../pages/Doctor/Treatment/TreatmentDetail.tsx'),
         ),
+        allowedRoles: ['doctor'],
+
         exact: true,
       },
       {
@@ -196,6 +205,8 @@ export const routes = [
         component: React.lazy(
           () => import('../pages/Doctor/Profile/Profile.tsx'),
         ),
+        allowedRoles: ['doctor'],
+
         exact: true,
       },
       {
@@ -204,6 +215,8 @@ export const routes = [
         component: React.lazy(
           () => import('../pages/Doctor/PostManagement/PostManagement.tsx'),
         ),
+        allowedRoles: ['doctor'],
+
         exact: true,
       },
     ],
@@ -219,6 +232,8 @@ export const routes = [
     label: 'Admin Dashboard',
     path: ROUTE_PATH.ADMIN.INDEX,
     layout: ProtectedLayout,
+    allowedRoles: ['admin'],
+
     children: [
       {
         label: 'Admin list',
@@ -226,6 +241,7 @@ export const routes = [
         component: React.lazy(
           () => import('../pages/Admin/Dashboard/Dashboard'),
         ),
+        allowedRoles: ['admin'],
       },
       {
         label: 'Post management',
@@ -233,6 +249,7 @@ export const routes = [
         component: React.lazy(
           () => import('../pages/Admin/PostManagement/PostManagement.tsx'),
         ),
+        allowedRoles: ['admin'],
       },
       {
         label: 'Account management',
@@ -240,6 +257,7 @@ export const routes = [
         component: React.lazy(
           () => import('../pages/Admin/AccountManagement/AccountManagement'),
         ),
+        allowedRoles: ['admin'],
       },
     ],
   },

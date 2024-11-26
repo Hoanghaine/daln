@@ -34,6 +34,7 @@ import 'react-toastify/dist/ReactToastify.css'
 import AddPost from '../../MainPage/Forum/AddPost/AddPost'
 import ConfirmDeleteDialog from '../../../components/ConfirmDialogs/ConfirmDeleteDialog'
 
+import { useNavigate } from 'react-router-dom'
 const PostManagement = () => {
   const [selectedPost, setSelectedPost] = useState<IPost | null>(null)
   const [page, setPage] = useState<number>(0)
@@ -45,6 +46,7 @@ const PostManagement = () => {
     size: 10,
   })
   const [deletePost] = useDeletePostMutation()
+  const navigate = useNavigate()
 
   if (isLoading) return <LazyLoading />
   if (isError || !data?.data.elements.length) {
@@ -115,7 +117,9 @@ const PostManagement = () => {
   if (isLoading) {
     return <Typography>Loading...</Typography>
   }
-
+  const handleMoveToPost = (postId: number) => {
+    navigate(`/forum/${postId}`)
+  }
   return (
     <Box
       sx={{
@@ -123,23 +127,6 @@ const PostManagement = () => {
       }}
     >
       <ToastContainer />
-      {/* <Dialog open={openConfirmDialog} onClose={handleCloseConfirmDialog}>
-        <DialogTitle>Xác nhận xóa</DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            Bạn có chắc chắn muốn xóa bài viết này không? Thao tác này không thể
-            hoàn tác.
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseConfirmDialog} color='primary'>
-            Hủy
-          </Button>
-          <Button onClick={handleDelete} color='secondary' variant='contained'>
-            Xóa
-          </Button>
-        </DialogActions>
-      </Dialog> */}
       <ConfirmDeleteDialog
         open={openConfirmDialog}
         onClose={handleCloseConfirmDialog}
@@ -240,10 +227,15 @@ const PostManagement = () => {
             {data?.data.elements.map(post => (
               <TableRow key={post.id}>
                 <TableCell>
-                  <Avatar
+                  <Box
+                    component={'img'}
                     src={post.thumbnail}
-                    variant='square'
-                    sx={{ width: 100, height: 70 }}
+                    sx={{
+                      width: 100,
+                      height: 70,
+                      border: '1px solid #9999',
+                      objectFit: 'cover',
+                    }}
                   />
                 </TableCell>
                 <TableCell>{post.title}</TableCell>
@@ -259,7 +251,7 @@ const PostManagement = () => {
                         fontSize: '26px',
                         color: '#65AD45',
                       }}
-                      onClick={() => handleViewPost(post)}
+                      onClick={() => handleMoveToPost(post.id)}
                     />
                     <EditIcon
                       sx={{
@@ -267,6 +259,7 @@ const PostManagement = () => {
                         fontSize: '26px',
                         color: '#65AD45',
                       }}
+                      onClick={() => handleViewPost(post)}
                     />
                     <DeleteIcon
                       sx={{
