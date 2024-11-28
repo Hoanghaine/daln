@@ -49,13 +49,6 @@ const PostManagement = () => {
   const navigate = useNavigate()
 
   if (isLoading) return <LazyLoading />
-  if (isError || !data?.data.elements.length) {
-    return (
-      <Typography variant='h6' color='error'>
-        Error fetching posts or no posts available.
-      </Typography>
-    )
-  }
 
   // Hàm mở popup xem chi tiết
   const handleViewPost = (post: IPost) => {
@@ -183,99 +176,103 @@ const PostManagement = () => {
           Đăng bài viết mới
         </Button>
       </Stack>
-      <TableContainer
-        sx={{
-          borderRadius: '16px',
-          border: '1px solid #65AD45',
-        }}
-      >
-        <Table>
-          <TableHead
-            sx={{
-              fontWeight: 'bold',
-              backgroundColor: '#65AD45',
-            }}
-          >
-            <TableRow>
-              <TableCell
-                sx={{ fontWeight: 'bold', fontSize: '16px', color: 'white' }}
-              >
-                Thumbnail
-              </TableCell>
-              <TableCell
-                sx={{ fontWeight: 'bold', fontSize: '16px', color: 'white' }}
-              >
-                Tiêu đề
-              </TableCell>
-              <TableCell
-                sx={{ fontWeight: 'bold', fontSize: '16px', color: 'white' }}
-              >
-                Danh mục
-              </TableCell>
-              <TableCell
-                sx={{ fontWeight: 'bold', fontSize: '16px', color: 'white' }}
-              >
-                Thời gian tạo
-              </TableCell>
-              <TableCell
-                sx={{ fontWeight: 'bold', fontSize: '16px', color: 'white' }}
-              ></TableCell>{' '}
-              {/* Empty header for action buttons */}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {data?.data.elements.map(post => (
-              <TableRow key={post.id}>
-                <TableCell>
-                  <Box
-                    component={'img'}
-                    src={post.thumbnail}
-                    sx={{
-                      width: 100,
-                      height: 70,
-                      border: '1px solid #9999',
-                      objectFit: 'cover',
-                    }}
-                  />
+      {data?.data.elements.length > 0 ? (
+        <TableContainer
+          sx={{
+            borderRadius: '16px',
+            border: '1px solid #65AD45',
+          }}
+        >
+          <Table>
+            <TableHead
+              sx={{
+                fontWeight: 'bold',
+                backgroundColor: '#65AD45',
+              }}
+            >
+              <TableRow>
+                <TableCell
+                  sx={{ fontWeight: 'bold', fontSize: '16px', color: 'white' }}
+                >
+                  Thumbnail
                 </TableCell>
-                <TableCell>{post.title}</TableCell>
-                <TableCell>{post.tag}</TableCell>
-                <TableCell>
-                  {new Date(post.createdAt).toLocaleDateString()}
+                <TableCell
+                  sx={{ fontWeight: 'bold', fontSize: '16px', color: 'white' }}
+                >
+                  Tiêu đề
                 </TableCell>
-                <TableCell>
-                  <Box display='flex' flexDirection='column' gap={1}>
-                    <PreviewIcon
-                      sx={{
-                        cursor: 'pointer',
-                        fontSize: '26px',
-                        color: '#65AD45',
-                      }}
-                      onClick={() => handleMoveToPost(post.id)}
-                    />
-                    <EditIcon
-                      sx={{
-                        cursor: 'pointer',
-                        fontSize: '26px',
-                        color: '#65AD45',
-                      }}
-                      onClick={() => handleViewPost(post)}
-                    />
-                    <DeleteIcon
-                      sx={{
-                        cursor: 'pointer',
-                        fontSize: '26px',
-                        color: 'red',
-                      }}
-                      onClick={() => handleOpenConfirmDialog(post.id)}
-                    />
-                  </Box>
+                <TableCell
+                  sx={{ fontWeight: 'bold', fontSize: '16px', color: 'white' }}
+                >
+                  Danh mục
                 </TableCell>
+                <TableCell
+                  sx={{ fontWeight: 'bold', fontSize: '16px', color: 'white' }}
+                >
+                  Thời gian tạo
+                </TableCell>
+                <TableCell
+                  sx={{ fontWeight: 'bold', fontSize: '16px', color: 'white' }}
+                ></TableCell>{' '}
+                {/* Empty header for action buttons */}
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+            </TableHead>
+            <TableBody>
+              {data?.data.elements.map(post => (
+                <TableRow key={post.id}>
+                  <TableCell>
+                    <Box
+                      component={'img'}
+                      src={post.thumbnail}
+                      sx={{
+                        width: 100,
+                        height: 70,
+                        border: '1px solid #9999',
+                        objectFit: 'cover',
+                      }}
+                    />
+                  </TableCell>
+                  <TableCell>{post.title}</TableCell>
+                  <TableCell>{post.tag}</TableCell>
+                  <TableCell>
+                    {new Date(post.createdAt).toLocaleDateString()}
+                  </TableCell>
+                  <TableCell>
+                    <Box display='flex' flexDirection='column' gap={1}>
+                      <PreviewIcon
+                        sx={{
+                          cursor: 'pointer',
+                          fontSize: '26px',
+                          color: '#65AD45',
+                        }}
+                        onClick={() => handleMoveToPost(post.id)}
+                      />
+                      <EditIcon
+                        sx={{
+                          cursor: 'pointer',
+                          fontSize: '26px',
+                          color: '#65AD45',
+                        }}
+                        onClick={() => handleViewPost(post)}
+                      />
+                      <DeleteIcon
+                        sx={{
+                          cursor: 'pointer',
+                          fontSize: '26px',
+                          color: 'red',
+                        }}
+                        onClick={() => handleOpenConfirmDialog(post.id)}
+                      />
+                    </Box>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      ) : (
+        <Typography>Chưa có bài viết nào</Typography>
+      )}
 
       {/* Popup xem chi tiết bài viết */}
       <Dialog open={!!selectedPost} onClose={handleCloseDialog}>

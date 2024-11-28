@@ -1,35 +1,31 @@
 import {
   Box,
-  Stack,
   Typography,
-  Avatar,
   Button,
+  Stack,
+  Avatar,
   TextField,
-  avatarClasses,
 } from '@mui/material'
 import Grid from '@mui/material/Grid2'
-import SearchIcon from '@mui/icons-material/Search'
-import CallIcon from '@mui/icons-material/Call'
-import MoreHorizIcon from '@mui/icons-material/MoreHoriz'
 import {
   useGetChatListQuery,
   useGetChatQuery,
-} from '../../redux/api/api.caller'
+} from '../../../redux/api/api.caller'
 import { useEffect, useRef, useState } from 'react'
-import LazyLoading from '../../components/LazyLoading'
+import LazyLoading from '../../../components/LazyLoading'
 // Mock data for messages
-import LogoutIcon from '@mui/icons-material/Logout'
-import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos'
 import { Stomp, CompatClient } from '@stomp/stompjs'
+import CallIcon from '@mui/icons-material/Call'
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz'
+// Dữ liệu mẫu danh sách phòng chữa trị
 interface ChatCardProps {
   username: string
   fullName: string
   lastMessage: string
+  avatar?: string
   lastMessageTime: string
   onClick: () => void
-  avatar?: string
 }
-
 const ChatCard = ({
   username,
   fullName,
@@ -93,15 +89,12 @@ const ChatCard = ({
     </Stack>
   )
 }
-
-// Function to render individual messages
 interface MessageProps {
   content: string
   timestamp: string
   isOwnMessage: boolean
   avatar?: string
 }
-
 const Message = ({
   content,
   timestamp,
@@ -138,7 +131,6 @@ const Message = ({
     </Stack>
   )
 }
-
 function MessagePage() {
   const [selectedChatUser, setSelectedChatUser] = useState<string | null>(null)
   const stompClient = useRef<CompatClient | null>(null)
@@ -146,6 +138,7 @@ function MessagePage() {
   const [message, setMessage] = useState('')
   const [username, setUsername] = useState('')
   const [receiverName, setReceiverName] = useState('')
+  const [receiverFullName, setReceiverFullName] = useState('')
   const [receiverAvatar, setReceiverAvatar] = useState('')
   const { data: chatListData, error, isLoading } = useGetChatListQuery({})
   const { data: chatData, isFetching } = useGetChatQuery(
@@ -159,18 +152,18 @@ function MessagePage() {
       const userInfor = localStorage.getItem('userInfo')
       if (userInfor) {
         const userData = JSON.parse(userInfor)
-        setUsername(userData.username)
+        setUsername(userData.username) // Thiết lập username từ localStorage
       } else {
         console.error('User info not found')
       }
     }
     setUserName()
   }, [])
+
   useEffect(() => {
-    console.log('connectWebSocket')
     const connectWebSocket = async () => {
       const token = localStorage.getItem('token')
-      if (!token || !username) return // Chỉ tiếp tục nếu có token và username
+      if (!token || !username) return
 
       // const client = Stomp.over(() => new WebSocket('wss://local.thinhtran.online/ws'))
       const client = Stomp.over(() => new WebSocket('ws://localhost:8080/ws'))
@@ -188,7 +181,6 @@ function MessagePage() {
       )
       stompClient.current = client
     }
-
     connectWebSocket()
 
     return () => {
@@ -208,10 +200,21 @@ function MessagePage() {
       setChatMessages(messages)
     }
   }, [chatData])
+  useEffect(() => {
+    console.log('chatListData:', chatListData)
+    if (chatListData?.data?.length > 0) {
+      const firstUsername = chatListData.data[0].username 
+
+      // Call your function here if needed
+      handleChatCardClick(firstUsername);
+    }
+  }, [chatListData])
+
   const onPrivateMessageReceived = (payload: any) => {
     try {
       const { message, senderName } = JSON.parse(payload.body)
       console.log('Received message:', message, senderName)
+
       displayMessage({ message, senderName, avatar: receiverAvatar })
     } catch (error) {
       console.error('Error parsing message payload:', error)
@@ -246,23 +249,16 @@ function MessagePage() {
       },
     ])
   }
-  useEffect(() => {
-    console.log('chatListData:', chatListData)
-    if (chatListData?.data?.length > 0) {
-      const firstUsername = chatListData.data[0].username
 
-      // Call your function here if needed
-      handleChatCardClick(firstUsername)
-    }
-  }, [chatListData])
   const sendPrivateMessage = () => {
-    console.log('sendPrivateMessage', message, receiverName)
     if (message && receiverName && stompClient.current) {
       const chatMessage = {
         senderName: username,
         receiverName: receiverName,
         message: message,
       }
+      console.log('chatMessage:', chatMessage)
+
       stompClient.current.send(
         '/app/private-message',
         { Authorization: 'Bearer ' + localStorage.getItem('token') },
@@ -275,10 +271,14 @@ function MessagePage() {
   }
 
   const handleChatCardClick = (clickedUsername: string) => {
-    setSelectedChatUser(clickedUsername)
+    setSelectedChatUser(clickedUsername) // Chỉ thay đổi receiverName
     setReceiverName(clickedUsername)
     setReceiverAvatar(
       chatListData.data.find(chat => chat.username === clickedUsername)?.avatar,
+    )
+    setReceiverFullName(
+      chatListData.data.find(chat => chat.username === clickedUsername)
+        ?.fullName,
     )
     setChatMessages([])
   }
@@ -286,7 +286,7 @@ function MessagePage() {
   return (
     <Box
       sx={{
-        height: '100vh',
+        height: '100%',
         backgroundColor: '#f0f0f0',
         padding: '16px',
       }}
@@ -309,28 +309,9 @@ function MessagePage() {
               position: 'relative',
             }}
           >
-            <Stack p={2} flexDirection={'column'}>
-              <Typography variant='h4' color='initial'>
-                Đoạn chat
-              </Typography>
-              <Stack
-                sx={{
-                  display: 'flex',
-                  flexDirection: 'row',
-                  gap: '16px',
-                  padding: '8px 16px',
-                  alignItems: 'center',
-                  justifyContent: 'flex-start',
-                  backgroundColor: '#F0F0F0',
-                  borderRadius: '16px ',
-                }}
-              >
-                <SearchIcon />
-                <Typography variant='body1' color='initial'>
-                  Tìm kiếm
-                </Typography>
-              </Stack>
-            </Stack>
+            <Typography variant='h5' color='initial' mb={2}>
+              Danh sách trò chuyện
+            </Typography>
             {isLoading && <LazyLoading />}
             {error && <Typography>Error fetching chats</Typography>}
             {chatListData && (
@@ -358,21 +339,6 @@ function MessagePage() {
                 ))}
               </Stack>
             )}
-
-            <LogoutIcon
-              sx={{
-                position: 'absolute',
-                bottom: '16px',
-                left: '16px',
-                cursor: 'pointer',
-                fontSize: '32px',
-              }}
-              onClick={() => {
-                localStorage.removeItem('token')
-                localStorage.removeItem('userInfo')
-                window.location.href = '/login'
-              }}
-            />
           </Stack>
         </Grid>
         <Grid size={8}>
@@ -413,7 +379,7 @@ function MessagePage() {
               >
                 <Avatar src={receiverAvatar} />
                 <Typography variant='h5' color='initial'>
-                  {chatData?.data[0]?.fullNameReceiver}
+                  {receiverFullName}
                 </Typography>
                 <Typography variant='body1' color='initial'>
                   Đang hoạt động

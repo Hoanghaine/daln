@@ -3,13 +3,13 @@ import { styled } from '@mui/material/styles'
 import React, { useState } from 'react'
 import Box from '@mui/material/Box'
 import DashboardIcon from '@mui/icons-material/Dashboard'
-import MeetingRoomIcon from '@mui/icons-material/MeetingRoom'
 import logo from '../../../assets/logo.png'
 import DynamicFeedIcon from '@mui/icons-material/DynamicFeed'
 import MenuIcon from '@mui/icons-material/Menu'
 import IconButton from '@mui/material/IconButton'
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday'
 import AccountCircleIcon from '@mui/icons-material/AccountCircle'
+import ChatIcon from '@mui/icons-material/Chat'
 const StyledNavItem = styled(Box)(({ theme }) => ({
   textDecoration: 'none',
   color: 'inherit',
@@ -35,7 +35,7 @@ const SideBar: React.FC = () => {
   const menuItemsDoctor = [
     { id: '', label: 'Tổng quan', Icon: DashboardIcon },
     { id: 'schedule', label: 'Lịch làm việc', Icon: CalendarTodayIcon },
-    { id: 'treatment', label: 'Phòng Khám', Icon: MeetingRoomIcon },
+    { id: 'message', label: 'Tin nhắn', Icon: ChatIcon },
     { id: 'post', label: 'Bài viết của tôi', Icon: DynamicFeedIcon },
     { id: 'profile', label: 'Thông tin cá nhân', Icon: AccountCircleIcon },
   ]
@@ -59,10 +59,11 @@ const SideBar: React.FC = () => {
       sx={{
         width: isCollapsed ? '70px' : '240px',
         height: '100vh',
-        border: '1px solid #f5f5f5',
         padding: '16px',
         transition: 'width 0.3s ease',
         overflow: 'hidden',
+        backgroundColor: '#fff',
+        borderRight: '1px solid #e0e0e0',
       }}
     >
       <IconButton
@@ -95,7 +96,7 @@ const SideBar: React.FC = () => {
           sx={{
             mt: '20px',
             width: isCollapsed ? '40px' : '100px',
-            marginBottom: '16px',
+            marginBottom: '32px',
           }}
         />
       </Box>

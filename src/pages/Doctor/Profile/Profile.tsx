@@ -7,31 +7,92 @@ import {
   Stack,
   Button,
   Slide,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  TextField,
+  Dialog,
 } from '@mui/material'
-import { useGetDoctorProfileQuery } from '../../../redux/api/api.caller'
+import {
+  useGetDoctorProfileQuery,
+  useUpdateProfileDoctorMutation,
+} from '../../../redux/api/api.caller'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { Pagination, Autoplay } from 'swiper/modules'
 import 'swiper/css'
 import 'swiper/css/pagination'
+import 'react-toastify/dist/ReactToastify.css'
+import { ToastContainer, toast } from 'react-toastify'
 import EditIcon from '@mui/icons-material/Edit'
 import LazyLoading from '../../../components/LazyLoading'
-import Slideshow from '../../../components/mainPage/Slideshow'
+import { useState } from 'react'
+import { get } from 'http'
 // import 'swiper/css/bundle'
 const Profile = () => {
-  const { data, error, isLoading } = useGetDoctorProfileQuery()
-  // Hiển thị trạng thái loading
-  if (isLoading) {
-    ;<LazyLoading />
-  }
+  const { data, error, isLoading, refetch } = useGetDoctorProfileQuery()
+  const [updateProfile, { isLoading: isUpdating }] =
+    useUpdateProfileDoctorMutation()
+  const [open, setOpen] = useState(false)
+  const [formData, setFormData] = useState({})
+  const [avatar, setAvatar] = useState(null)
 
-  // Hiển thị lỗi nếu có
-  if (error) {
-    return <div>Error loading profile</div>
-  }
-
-  // Lấy dữ liệu từ response
   const doctorProfile = data?.data
-  console.log(doctorProfile)
+
+  // Mở dialog
+  const handleOpen = () => {
+    setFormData({ ...doctorProfile }) // Khởi tạo form với dữ liệu hiện tại
+    setOpen(true)
+  }
+
+  // Đóng dialog
+  const handleClose = () => setOpen(false)
+
+  // Xử lý thay đổi form
+  const handleChange = e => {
+    const { name, value } = e.target
+    setFormData(prev => ({ ...prev, [name]: value }))
+  }
+
+  // Xử lý thay đổi file avatar
+  const handleAvatarChange = e => {
+    setAvatar(e.target.files[0])
+  }
+
+  // Submit form
+  const handleSubmit = async () => {
+    const updatedFields = { ...formData }
+    if (avatar) {
+      updatedFields.avatar = avatar
+    }
+
+    try {
+      const response = await updateProfile(updatedFields).unwrap()
+      if (response) {
+        toast.success('Cập nhật thông tin thành công!', {
+          theme: 'colored',
+          autoClose: 3000,
+          position: 'top-right',
+        })
+        const userInfo = localStorage.getItem('userInfo')
+        const userInfoObj = userInfo ? JSON.parse(userInfo) : {}
+
+        // Cập nhật avatar vào localStorage
+        if (avatar) {
+          userInfoObj.avatar = URL.createObjectURL(avatar) // Cập nhật đường dẫn avatar
+        }
+
+        localStorage.setItem('userInfo', JSON.stringify(userInfoObj))
+        refetch()
+        setOpen(false)
+      }
+    } catch (error) {
+      console.error('Lỗi cập nhật:', error)
+      alert('Cập nhật thất bại.')
+    }
+  }
+
+  if (isLoading) return <CircularProgress />
+  if (error) return <Typography>Error loading profile</Typography>
   return (
     <Box
       sx={{
@@ -39,6 +100,8 @@ const Profile = () => {
         padding: '16px',
       }}
     >
+      <ToastContainer />
+
       <Box sx={{ flex: 1 }}>
         <Stack
           flexDirection={'row'}
@@ -119,7 +182,11 @@ const Profile = () => {
               </Stack>
             </Box>{' '}
           </Box>
-          <Button variant='contained' startIcon={<EditIcon />} sx={{}}>
+          <Button
+            variant='contained'
+            startIcon={<EditIcon />}
+            onClick={handleOpen}
+          >
             Sửa thông tin
           </Button>
         </Stack>
@@ -197,6 +264,86 @@ const Profile = () => {
           )}
         </Box>
       </Box>
+      <Dialog open={open} onClose={handleClose} fullWidth maxWidth='sm'>
+        <DialogTitle>Chỉnh sửa thông tin</DialogTitle>
+        <DialogContent>
+          <Stack spacing={2} p={1}>
+            <TextField
+              label='Tên'
+              name='name'
+              value={formData.name || ''}
+              onChange={handleChange}
+              fullWidth
+            />
+            <TextField
+              label='Email'
+              name='email'
+              value={formData.phone || ''}
+              onChange={handleChange}
+              fullWidth
+            />
+            <TextField
+              label='Email'
+              name='email'
+              value={formData.email || ''}
+              onChange={handleChange}
+              fullWidth
+            />
+            <TextField
+              label='Date of Birth'
+              type='date'
+              InputLabelProps={{ shrink: true }}
+              variant='outlined'
+              name='dob'
+              value={formData.dob}
+              onChange={handleChange}
+            />
+            <TextField
+              label='Địa chỉ'
+              name='address'
+              value={formData.address || ''}
+              onChange={handleChange}
+              fullWidth
+            />
+            <TextField
+              label='Experience Years'
+              type='number'
+              variant='outlined'
+              name='experienceYears'
+              value={formData.experience || ''}
+              onChange={handleChange}
+            />
+            <TextField
+              label='Chuyên môn'
+              name='specialization'
+              value={formData.specialization || ''}
+              onChange={handleChange}
+              fullWidth
+            />
+            <Button variant='outlined' component='label'>
+              Upload Avatar
+              <input type='file' hidden onChange={handleAvatarChange} />
+            </Button>
+            {avatar && (
+              <Typography variant='body2' color='text.secondary'>
+                {avatar.name}
+              </Typography>
+            )}
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose} disabled={isUpdating}>
+            Hủy
+          </Button>
+          <Button
+            onClick={handleSubmit}
+            variant='contained'
+            disabled={isUpdating}
+          >
+            {isUpdating ? 'Đang lưu...' : 'Lưu'}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   )
 }

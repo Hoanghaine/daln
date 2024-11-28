@@ -459,8 +459,9 @@ export default function AccountManagement() {
                   flexDirection='row'
                   gap='8px'
                   sx={{
-                    width: '100%',
-                    justifyContent: 'space-between',
+                    width: 'fit-content',
+                    justifyContent: 'flex-start',
+                    gap: '16px',
                   }}
                 >
                   {selectedAccount &&

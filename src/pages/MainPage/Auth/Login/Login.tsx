@@ -39,6 +39,9 @@ function Login() {
           username: response.data.username, // Ví dụ nếu API trả về username
           avatar: response.data.avatar, // Ví dụ nếu API trả về avatar
         }
+        if(userInfo.avatar === null) {
+          userInfo.avatar = 'https://www.w3schools.com/howto/img_avatar.png'
+        }
         console.log(' userData:', userData)
 
         localStorage.setItem('token', token)

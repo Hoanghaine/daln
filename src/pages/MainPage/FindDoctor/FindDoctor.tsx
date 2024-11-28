@@ -98,7 +98,7 @@ const DoctorCard = ({
           }}
         >
           <Typography variant='body1' color='initial'>
-            {avgRating.toFixed(1)}%
+            {avgRating.toFixed(1)}
           </Typography>
           <Rating
             name='read-only'

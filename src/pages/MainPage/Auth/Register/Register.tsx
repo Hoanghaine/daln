@@ -9,7 +9,11 @@ import {
   Stack,
 } from '@mui/material'
 import loginImg from '../../../../assets/login-img.png'
-import { useRegisterMutation } from '../../../../redux/api/api.caller' // API mutation
+import {
+  useRegisterMutation,
+  useGetSpecializationsQuery,
+  useUploadCertificatesMutation,
+} from '../../../../redux/api/api.caller' // API mutation
 import Grid from '@mui/material/Grid2'
 import { useNavigate } from 'react-router-dom'
 import { ToastContainer, toast } from 'react-toastify'
@@ -33,6 +37,8 @@ export default function Register() {
   }) // Initial form data
   const [register, { isLoading }] = useRegisterMutation() // Mutation hook to call the register API
   const [certificates, setCertificates] = useState<File[]>([]) // State to store selected files
+  const { data: specializationsData } = useGetSpecializationsQuery({})
+  const [uploadCertificates] = useUploadCertificatesMutation()
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue)
     setFormData({
@@ -69,29 +75,50 @@ export default function Register() {
   const handleRegister = async () => {
     console.log('Register form data:', formData)
     try {
+      // Gửi yêu cầu đăng ký
       const response = await register(formData).unwrap()
       console.log('Register response:', response)
+
       if (response) {
         if (formData.role === 'DOCTOR') {
+          const token = response.data.token
+          localStorage.setItem('token', token)
+          console.log(formData.name)
+          if (certificates.length > 0) {
+            // Gửi yêu cầu tải lên certificates
+            const uploadResponse = await uploadCertificates({
+              images: certificates,
+              name: formData.name,
+            }).unwrap()
+            console.log('Upload certificates response:', uploadResponse)
+
+            toast.success('Chứng chỉ đã được tải lên thành công!', {
+              theme: 'colored',
+              autoClose: 3000,
+              position: 'top-right',
+            })
+          }
+
           toast.success(
-            'Đăng ký thành công! Vui lòng kiểm tra email sau 1 2 ngày',
+            'Đăng ký thành công! Vui lòng kiểm tra email sau 1-2 ngày',
             {
               theme: 'colored',
-              autoClose: 2000,
+              autoClose: 3000,
               position: 'top-right',
             },
           )
+        } else {
+          toast.success('Đăng ký thành công!', {
+            theme: 'colored',
+            autoClose: 2000,
+            position: 'top-right',
+          })
         }
 
+        // Điều hướng sau khi hoàn tất
         setTimeout(() => {
           navigate('/login')
-        }, 2000)
-      } else {
-        toast.error('Đăng ký thất bại!', {
-          theme: 'colored',
-          autoClose: 2000,
-          position: 'top-right',
-        })
+        }, 1000)
       }
     } catch (error) {
       console.error('Register failed:', error)
@@ -100,6 +127,7 @@ export default function Register() {
         autoClose: 2000,
         position: 'top-right',
       })
+      localStorage.removeItem('token')
     }
   }
 

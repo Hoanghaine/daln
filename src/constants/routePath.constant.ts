@@ -26,8 +26,7 @@ export const ROUTE_PATH = {
   DOCTOR: {
     INDEX: '/doctor',
     SCHEDULE: '/doctor/schedule',
-    TREATMENT: '/doctor/treatment',
-    TREATMENT_DETAIL: '/doctor/treatment/:id',
+    MESSAGE: '/doctor/message',
     PROFILE: '/doctor/profile',
     POST: '/doctor/post',
   },

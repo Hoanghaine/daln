@@ -11,6 +11,7 @@ import {
   IDoctorsBasicInforResponse,
   ITagsResponse,
   ICommentsResponse,
+  ISchedulesResponse,
 } from '../../types/paginatedResponse'
 import { IUserRegister } from '../../types/user'
 
@@ -41,6 +42,21 @@ export const apiCaller = createApi({
         body: user,
       }),
     }),
+    uploadCertificates: builder.mutation({
+      query: ({ images, name }) => {
+        const formData = new FormData()
+        images.forEach((image: File) => {
+          formData.append('images', image)
+        })
+        formData.append('name', name)
+        return {
+          url: '/certificates',
+          method: 'POST',
+          body: formData,
+        }
+      },
+    }),
+
     forgotPassword: builder.mutation({
       query: () => ({
         url: '/auth/forgot-password',
@@ -172,9 +188,7 @@ export const apiCaller = createApi({
         }
       },
     }),
-    getCommentsPost: builder.query({
-      query: (postId: number) => `/comments/${postId}`,
-    }),
+
     deletePost: builder.mutation({
       query: postId => ({
         url: `/posts/${postId}`,
@@ -188,7 +202,7 @@ export const apiCaller = createApi({
       }),
     }),
     getChat: builder.query({
-      query: (receiverName: string) => `/chats/${receiverName}`,
+      query: (receiverName: string) => `/chats?receiverName=${receiverName}`,
     }),
     getChatList: builder.query({
       query: () => '/chats/categories', // Your endpoint
@@ -221,7 +235,6 @@ export const apiCaller = createApi({
     getPostComments: builder.query<ICommentsResponse, number>({
       query: postId => `/comments/${postId}`,
     }),
-
     commentPost: builder.mutation({
       query: ({ postId, content }) => ({
         url: `/comments`,
@@ -229,41 +242,120 @@ export const apiCaller = createApi({
         body: { postId, content },
       }),
     }),
+
+    getDoctorSchedules: builder.query<ISchedulesResponse, void>({
+      query: () => `/schedules/doctor`,
+    }),
+    getPatientSchedules: builder.query<ISchedulesResponse, void>({
+      query: () => `/schedules/patient`,
+    }),
+    makeSchedule: builder.mutation({
+      query: ({ doctorId, notes, appointmentDate }) => ({
+        url: `/schedules`,
+        method: 'POST',
+        body: { doctorId, notes, appointmentDate },
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }),
+    }),
+
+    changeStatusSchedule: builder.mutation({
+      query: ({ scheduleId, status }) => ({
+        url: `/schedules/${scheduleId}?status=${status}`,
+        method: 'PUT',
+      }),
+    }),
+
+    rateDoctor: builder.mutation({
+      query: ({ doctorId, rating, review }) => ({
+        url: `/comments/rating`,
+        method: 'POST',
+        body: { doctorId, rating, review },
+      }),
+    }),
+
+    updateProfileDoctor: builder.mutation({
+      query: ({
+        name,
+        email,
+        phone,
+        address,
+        dob,
+        avatar,
+        about,
+        degree,
+        experience,
+        specialization,
+      }) => {
+        const formData = new FormData()
+        formData.append('name', name)
+        formData.append('email', email)
+        formData.append('phone', phone)
+        formData.append('address', address)
+        formData.append('dob', dob)
+        formData.append('avatar', avatar)
+        formData.append('about', about)
+        formData.append('degree', degree)
+        formData.append('experience', experience)
+        formData.append('specialization', specialization)
+        return {
+          url: '/users/doctor',
+          method: 'PUT',
+          body: formData,
+        }
+      },
+    }),
   }),
 })
 
 export const {
   useSubmitQuizzesMutation,
+  useGetQuizzesQuery,
+
   useLoginMutation,
   useAdminLoginMutation,
   useChangePasswordMutation,
   useForgotPasswordMutation,
+  useRegisterMutation,
+  useUploadCertificatesMutation,
 
-  useGetQuizzesQuery,
   useGetPostsQuery,
   useGetOwnPostsQuery,
   useGetPostDetailQuery,
   useAddPostMutation,
   useUpdatePostMutation,
+  useDeletePostMutation,
+  useLikePostMutation,
+  useUnLikePostMutation,
+
+  useGetPostCommentsQuery,
+  useCommentPostMutation,
+
   useGetAccountsQuery,
+  useApproveDoctorMutation,
+  useRejectDoctorMutation,
+
   useGetDoctorDetailQuery,
   useGetDoctorProfileQuery,
   useGetPatientProfileQuery,
   useGetPatientDetailQuery,
   useGetDoctorsBasicInforQuery,
-  useRegisterMutation,
   useGetDoctorCommentsQuery,
   useGetSpecializationsQuery,
   useLazyGetDoctorsBasicInforQuery,
-  useGetCommentsPostQuery,
-  useDeletePostMutation,
+
   useGetTagsQuery,
+
   useGetChatListQuery,
   useGetChatQuery,
-  useApproveDoctorMutation,
-  useRejectDoctorMutation,
-  useLikePostMutation,
-  useUnLikePostMutation,
-  useGetPostCommentsQuery,
-  useCommentPostMutation,
+
+  useGetDoctorSchedulesQuery,
+  useGetPatientSchedulesQuery,
+  useMakeScheduleMutation,
+  useChangeStatusScheduleMutation,
+
+  useRateDoctorMutation,
+
+  useUpdateProfileDoctorMutation,
 } = apiCaller

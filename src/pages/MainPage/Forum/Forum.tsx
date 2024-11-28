@@ -23,7 +23,7 @@ import SearchIcon from '@mui/icons-material/Search'
 import CreateIcon from '@mui/icons-material/Create'
 import LazyLoading from '../../../components/LazyLoading'
 import FavoriteSharpIcon from '@mui/icons-material/FavoriteSharp'
-const categories = ['Tư vấn']
+const categories = ['Tư vấn','Hỗ trợ']
 import CloseIcon from '@mui/icons-material/Close'
 import CommentIcon from '@mui/icons-material/Comment'
 import { toast, ToastContainer } from 'react-toastify'
@@ -328,12 +328,15 @@ export default function Forum() {
                   key={index}
                   onClick={() => setSelectedCategory(category)}
                   style={{
+                    display:'inline-block',
                     marginLeft: '16px',
                     listStyle: 'none',
                     padding: '8px',
                     cursor: 'pointer',
                     color:
                       selectedCategory === category ? '#3C5EAB' : 'inherit',
+                    borderBottom: 
+                      selectedCategory === category ? '1px solid #3C5EAB' : '1px solid #fff',
                   }}
                 >
                   {category}

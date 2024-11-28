@@ -33,6 +33,7 @@
     "axios": "^1.7.7",
     "date-fns": "^4.1.0",
     "do_an_lien_nganh": "file:",
+    "html-react-parser": "^5.1.18",
     "node-libs-browser": "^2.2.1",
     "quill": "^2.0.2",
     "react": "^18.3.1",

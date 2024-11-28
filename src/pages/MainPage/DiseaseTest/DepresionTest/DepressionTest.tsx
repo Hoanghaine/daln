@@ -1,16 +1,19 @@
 import { Box, Button, Typography, Stack } from '@mui/material'
-import React from 'react'
+import React, { useState } from 'react'
 import logo from '../../../../assets/logo.png'
 import FileDownloadOutlinedIcon from '@mui/icons-material/FileDownloadOutlined'
 import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined'
 import SuggestDoctors from '../../../../components/mainPage/SuggestDoctors'
 import AutorenewIcon from '@mui/icons-material/Autorenew'
-
+import parse from 'html-react-parser'
 import { IQuiz } from '../../../../types/quiz'
 import {
   useGetQuizzesQuery,
   useSubmitQuizzesMutation,
 } from '../../../../redux/api/api.caller'
+import QuizResult from './QuizResult'
+import LazyLoading from '../../../../components/LazyLoading'
+import LazyLoadingQuiz from '../../../../components/LazyLoading/LazyLoadingQuiz'
 
 const Introduction = ({ onNext }: { onNext: () => void }) => {
   return (
@@ -103,16 +106,26 @@ const Question = ({
         sx={{
           width: '100%',
           display: 'flex',
-          flexDirection: 'row',
+          flexDirection: 'column',
           justifyContent: 'center',
-          alignItems: 'center',
         }}
       >
         {choice.map((choice, index) => (
           <Button
             variant='outlined'
-            color='primary'
-            sx={{ margin: '8px' }}
+            sx={{
+              borderRadius: '16px',
+              margin: '8px',
+              border: '2px solid #65AD45',
+              backgroundColor: 'rgba(101, 173, 69, 0.2)', // 100% opacity
+
+              color: '#000',
+              fontSize: '1.2rem',
+              textAlign: 'left',
+              '&:hover': {
+                backgroundColor: 'rgba(101, 173, 69, 1)', // 100% opacity
+              },
+            }}
             key={index}
             onClick={() => onAnswer(id, choice)}
           >
@@ -130,15 +143,17 @@ const depressionLevels = [
   { label: 'Vùng trầm cảm vừa', color: '#F7DD2E' },
   { label: 'Vùng trầm cảm nặng', color: '#BA1C1D' },
 ]
-const getDepressionLevel = (score: number) => {
-  if (score <= 3) return 1 // Vùng an toàn
-  if (score <= 6) return 2 // Vùng trầm cảm nhẹ
-  if (score <= 9) return 3 // Vùng trầm cảm vừa
-  return 4 // Vùng trầm cảm nặng
-}
+
 export default function DepressionTest() {
   const [step, setStep] = React.useState(0)
+  interface TestResult {
+    score: number | null
+    result: string | null
+    explanation: string | null
+    suggestions: string | null
+  }
 
+  const [testResult, setTestResult] = useState<TestResult | null>(null)
   const [hasSubmitted, setHasSubmitted] = React.useState(false)
   const [answers, setAnswers] = React.useState<
     { quizId: number; answer: string }[]
@@ -164,20 +179,42 @@ export default function DepressionTest() {
     setAnswers([])
   }
 
-  const getCirclePosition = (score: number) => {
+  const getCirlePosition = (score: number) => {
     // Chia thang điểm từ 0 đến 10 thành các phần
-    return `${(score / 10) * 100}%`
+    console.log('score', score)
+    return `${(score / 60) * 100}%`
   }
 
   const handleSubmit = async () => {
     const iQuizSubmit = [...answers]
     try {
       const response = await submitQuizzes(iQuizSubmit).unwrap()
-      console.log('Submit response:', response)
+      if (response !== undefined) {
+        const { candidates } = response?.data || {}
+        const contentHtml = candidates?.[0]?.content?.parts?.[0]?.text || ''
+
+        // Extract content parts using regular expressions
+        const scoreMatch = contentHtml.match(/<p>Điểm số: (\d+)<\/p>/)
+        const resultMatch = contentHtml.match(/<p>Kết quả: (.*?)<\/p>/)
+        const explanationMatch = contentHtml.match(/<p>Giải thích: (.*?)<\/p>/)
+        const suggestionsMatch = contentHtml.match(/<ul>(.*?)<\/ul>/s)
+
+        // Build an object with extracted data
+        const testResult = {
+          score: scoreMatch ? parseInt(scoreMatch[1], 10) : null,
+          result: resultMatch ? resultMatch[1].trim() : null,
+          explanation: explanationMatch ? explanationMatch[1].trim() : null,
+          suggestions: suggestionsMatch ? suggestionsMatch[1].trim() : null,
+        }
+        // Set the result object for display or further use
+        setTestResult(testResult)
+        console.log('Extracted Test Result:', testResult)
+      }
     } catch (error) {
       console.error('Submit failed:', error)
     }
   }
+
   React.useEffect(() => {
     if (
       listQuiz.length !== 0 &&
@@ -185,8 +222,7 @@ export default function DepressionTest() {
       !hasSubmitted
     ) {
       handleSubmit()
-      setHasSubmitted(true) // Set to true to prevent multiple submissions
-      console.log('under submit')
+      setHasSubmitted(true)
     }
   }, [answers, listQuiz, hasSubmitted])
 
@@ -217,7 +253,12 @@ export default function DepressionTest() {
           onAnswer={handleAnswer}
         />
       )}
-      {step > listQuiz?.length && (
+      {step > listQuiz?.length && !testResult && (
+        <Box>
+          <LazyLoadingQuiz />
+        </Box>
+      )}
+      {step > listQuiz?.length && testResult && (
         <Box>
           <Box
             sx={{
@@ -428,7 +469,7 @@ export default function DepressionTest() {
                   <tbody>
                     <tr>
                       <td>Trầm cảm</td>
-                      {/* <td>{totalScore}</td> */}
+                      <td>{testResult.score}</td>
                       <td>
                         <Box
                           sx={{
@@ -452,7 +493,7 @@ export default function DepressionTest() {
                             sx={{
                               position: 'absolute',
                               top: '-5px',
-                              // left: getCirclePosition(totalScore),
+                              left: `70%`,
                               transform: 'translateX(-50%)',
                               width: '30px',
                               height: '30px',
@@ -467,6 +508,50 @@ export default function DepressionTest() {
                   </tbody>
                 </table>
               </Box>
+              <Typography variant='h6' mb={1} mt={2} color='#65AD45'>
+                4. Mô tả kết quả
+              </Typography>
+              {testResult && (
+                <Box
+                  sx={{
+                    backgroundColor: '#f9f9f9',
+                    padding: '20px',
+                    borderRadius: '16px',
+                    border: '2px solid #65AD45',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '10px',
+                    fontSize: '1.2rem',
+                    lineHeight: '1.6',
+                  }}
+                >
+                  <Typography variant='h6' color='initial'>
+                    <strong>Kết quả: </strong>
+                    {testResult.result && parse(testResult.result)}
+                  </Typography>
+                  <Typography variant='h6' color='initial' fontWeight={'bold'}>
+                    Giải thích kết quả:
+                  </Typography>
+                  <Box pl={1}>
+                    {testResult.explanation && parse(testResult.explanation)}
+                  </Box>
+                  <Typography variant='h6' color='initial' fontWeight={'bold'}>
+                    Tham khảo:
+                  </Typography>
+                  <Box pl={1}>
+                    {testResult.suggestions && parse(testResult.suggestions)}
+                  </Box>
+
+                  <Typography
+                    variant='body1'
+                    color='textSecondary'
+                    mt={3}
+                    textAlign={'center'}
+                  >
+                    Kết quả chỉ mang tính chất tham khảo.
+                  </Typography>
+                </Box>
+              )}
             </Box>
             <Button
               variant='contained'

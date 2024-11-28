@@ -181,19 +181,9 @@ export const routes = [
 
       {
         label: 'Treatment management',
-        path: ROUTE_PATH.DOCTOR.TREATMENT,
+        path: ROUTE_PATH.DOCTOR.MESSAGE,
         component: React.lazy(
-          () => import('../pages/Doctor/Treatment/Treatment.tsx'),
-        ),
-        allowedRoles: ['doctor'],
-
-        exact: true,
-      },
-      {
-        label: 'Treatment detail',
-        path: ROUTE_PATH.DOCTOR.TREATMENT_DETAIL,
-        component: React.lazy(
-          () => import('../pages/Doctor/Treatment/TreatmentDetail.tsx'),
+          () => import('../pages/Doctor/Message/Message.tsx'),
         ),
         allowedRoles: ['doctor'],
 
@@ -206,7 +196,6 @@ export const routes = [
           () => import('../pages/Doctor/Profile/Profile.tsx'),
         ),
         allowedRoles: ['doctor'],
-
         exact: true,
       },
       {
@@ -216,7 +205,6 @@ export const routes = [
           () => import('../pages/Doctor/PostManagement/PostManagement.tsx'),
         ),
         allowedRoles: ['doctor'],
-
         exact: true,
       },
     ],
