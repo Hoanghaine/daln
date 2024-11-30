@@ -1,8 +1,8 @@
-
 import loginImg from '../../../../assets/login-img.png'
 import { Box, Typography, TextField, Button, Stack } from '@mui/material'
 import CustomizedMenus from './CustomizedMenus'
 import { ToastContainer, toast } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 
 import { useState } from 'react'
 import { useLoginMutation } from '../../../../redux/api/api.caller' // API mutation
@@ -27,7 +27,7 @@ function Login() {
       status: 'APPROVED',
     } // Tạo object User
     try {
-      if(!userData.role) {
+      if (!userData.role) {
         userData.role = 'patient'
       }
       const response = await login(userData).unwrap() // Gọi API login
@@ -39,7 +39,7 @@ function Login() {
           username: response.data.username, // Ví dụ nếu API trả về username
           avatar: response.data.avatar, // Ví dụ nếu API trả về avatar
         }
-        if(userInfo.avatar === null) {
+        if (userInfo.avatar === null) {
           userInfo.avatar = 'https://www.w3schools.com/howto/img_avatar.png'
         }
         console.log(' userData:', userData)
@@ -61,6 +61,13 @@ function Login() {
       }
     } catch (error) {
       console.error('Login failed:', error)
+      if (error.status === 406) {
+        toast.error('Tài khoản chưa được kích hoạt', {
+          theme: 'colored',
+          autoClose: 2000,
+          position: 'bottom-left',
+        })
+      }
       // Xử lý khi đăng nhập thất bại
     }
   }
@@ -151,7 +158,7 @@ function Login() {
           <CustomizedMenus setRole={setRole} /> {/* Truyền hàm setRole */}
           <Button
             variant='contained'
-            color='primary' 
+            color='primary'
             sx={{ width: '100%', marginTop: '16px' }}
             onClick={handleClickLogin}
             disabled={isLoading}

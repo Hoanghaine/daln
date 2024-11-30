@@ -122,11 +122,19 @@ export default function Register() {
       }
     } catch (error) {
       console.error('Register failed:', error)
-      toast.error('Đăng ký thất bại!', {
-        theme: 'colored',
-        autoClose: 2000,
-        position: 'top-right',
-      })
+      if (error.data.error === 'Patient already existed with this username' || error.data.error === 'Doctor already existed with this username') {
+        toast.error('Tài khoản đã tồn tại!', {
+          theme: 'colored',
+          autoClose: 2000,
+          position: 'top-right',
+        })
+      } else if (error.data.error === 'Patient already existed with this email' || error.data.error === 'Doctor already existed with this email') {
+        toast.error('Email đã tồn tại!', {
+          theme: 'colored',
+          autoClose: 2000,
+          position: 'top-right',
+        })
+      }
       localStorage.removeItem('token')
     }
   }
@@ -144,12 +152,11 @@ export default function Register() {
       }}
     >
       <ToastContainer />
-
       <Box
         sx={{
           display: 'flex',
           flexDirection: 'column',
-          width: '550px',
+          width: '580px',
         }}
       >
         <Stack
@@ -170,7 +177,7 @@ export default function Register() {
           sx={{
             display: 'flex',
             flexDirection: 'column',
-            width: '500px',
+            width: '570px',
           }}
         >
           <Typography variant='h4' color='initial' textAlign={'center'} mb={2}>
@@ -203,8 +210,8 @@ export default function Register() {
             textColor='primary'
             variant='fullWidth'
           >
-            <Tab label='User Registration' />
-            <Tab label='Doctor Registration' />
+            <Tab label='Đăng ký tài khoản người dùng' />
+            <Tab label='Đăng ký tài khoản bác sĩ' />
           </Tabs>
           <Box sx={{ padding: '16px' }}>
             <Stack spacing={2}>
